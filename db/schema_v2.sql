@@ -1,7 +1,7 @@
 -- v2 データモデル（言語非依存・AI検索前提）
 
 -- 必要拡張（環境に合わせて導入済みであること）
--- CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 -- CREATE EXTENSION IF NOT EXISTS pgroonga; -- 任意
 
 -- 1. Document（原子）
