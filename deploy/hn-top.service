@@ -1,0 +1,11 @@
+[Unit]
+Description=Hacker News Ingest (topstories)
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/mcp-news
+Environment=DATABASE_URL=postgresql://localhost/newshub
+WorkingDirectory=%h/mcp-news
+ExecStart=%h/mcp-news/.venv/bin/python scripts/ingest_hn.py --kind topstories --limit 100 --sleep 0.1
+

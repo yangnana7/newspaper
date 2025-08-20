@@ -1,0 +1,13 @@
+[Unit]
+Description=Embed Chunks into pgvector
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+RuntimeDirectory=mcp-news
+ExecStartPre=/usr/bin/flock -n /run/mcp-news/embed.lock -c 'true'
+Environment=DATABASE_URL=postgresql://localhost/newshub
+Environment=EMBEDDING_MODEL=intfloat/multilingual-e5-base
+Environment=EMBED_SPACE=bge-m3
+WorkingDirectory=%h/mcp-news
+ExecStart=%h/mcp-news/.venv/bin/python scripts/embed_chunks.py --space ${EMBED_SPACE} --batch 128

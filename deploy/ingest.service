@@ -1,0 +1,10 @@
+[Unit]
+Description=MCP News Ingest Job
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+Environment=DATABASE_URL=postgresql://localhost/newshub
+WorkingDirectory=%h/mcp-news
+ExecStart=%h/mcp-news/.venv/bin/python scripts/ingest_rss.py --feeds config/feeds.json --source RSS
+

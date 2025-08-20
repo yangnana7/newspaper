@@ -1,0 +1,10 @@
+[Unit]
+Description=Run NewsAPI technology/jp ingest every 30 minutes
+
+[Timer]
+OnCalendar=*:0/30
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

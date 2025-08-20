@@ -1,0 +1,11 @@
+[Unit]
+Description=NewsAPI Ingest (technology/jp)
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/mcp-news
+Environment=DATABASE_URL=postgresql://localhost/newshub
+WorkingDirectory=%h/mcp-news
+ExecStart=%h/mcp-news/.venv/bin/python scripts/ingest_newsapi.py --mode top --country jp --category technology --page-size 50 --pages 1 --sleep 0.5
+
