@@ -21,3 +21,4 @@
 - CI runs in `.github/workflows/ci.yml` and applies schema before tests
  - Vector column: `chunk_vec.emb` uses `vector(768)` (cosine HNSW). If you change models with different dims, adjust this column and indexes accordingly.
  - CI runs tests with `PYTHONPATH=.` to ensure `scripts.*` imports work from repo root.
+  - CI collects tests only from `tests/` (excludes `docs/ci_pack/tests` to avoid duplicate names).

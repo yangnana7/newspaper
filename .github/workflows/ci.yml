@@ -69,4 +69,5 @@ jobs:
 
       - name: Run tests
         run: |
-          PYTHONPATH=. pytest -q
+          # Limit collection to repo tests to avoid duplicate names in docs/ci_pack
+          PYTHONPATH=. pytest -q tests
