@@ -1,0 +1,17 @@
+﻿2025-08-21T12:12:32.1053349Z ##[group]Run until psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; do
+2025-08-21T12:12:32.1054081Z [36;1muntil psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; do[0m
+2025-08-21T12:12:32.1054437Z [36;1m  echo 'waiting for postgres...'; sleep 2; done[0m
+2025-08-21T12:12:32.1054807Z [36;1mpsql "$DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS vector;'[0m
+2025-08-21T12:12:32.1097066Z shell: /usr/bin/bash -e {0}
+2025-08-21T12:12:32.1097293Z env:
+2025-08-21T12:12:32.1097751Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T12:12:32.1097998Z   EMBED_SPACE: bge-m3
+2025-08-21T12:12:32.1098191Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T12:12:32.1098464Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:12:32.1098837Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T12:12:32.1099211Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:12:32.1099543Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:12:32.1099929Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:12:32.1100271Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T12:12:32.1100548Z ##[endgroup]
+2025-08-21T12:12:32.5934158Z CREATE EXTENSION

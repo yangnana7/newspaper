@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS chunk_vec (
   chunk_id        BIGINT REFERENCES chunk(chunk_id) ON DELETE CASCADE,
   embedding_space TEXT NOT NULL,
   dim             INT NOT NULL,
-  emb             vector NOT NULL,
+  emb             vector(768) NOT NULL,
   PRIMARY KEY (chunk_id, embedding_space)
 );
 -- 例: HNSW インデックス（pgvector >=0.5）
@@ -57,9 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3_cos
   ON chunk_vec USING hnsw (emb vector_cosine_ops)
   WHERE embedding_space='bge-m3';
 
--- よく使うヒント/エンティティ参照のための補助インデックス
-CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
-CREATE INDEX IF NOT EXISTS idx_entity_ext ON entity (ext_id);
+-- （テーブル定義の後段で作成）
 
 -- 4. Entities（言語非依存のアンカー）
 CREATE TABLE IF NOT EXISTS entity (
@@ -110,6 +108,9 @@ CREATE TABLE IF NOT EXISTS hint (
   conf    REAL,
   PRIMARY KEY (doc_id, key)
 );
+-- よく使うヒント/エンティティ参照のための補助インデックス（テーブル定義後）
+CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
+CREATE INDEX IF NOT EXISTS idx_entity_ext ON entity (ext_id);
 -- key での参照を高速化
 CREATE INDEX IF NOT EXISTS idx_hint_key ON hint (key);
 

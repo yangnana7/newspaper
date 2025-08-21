@@ -1,0 +1,76 @@
+﻿2025-08-21T12:14:26.9976077Z Print service container logs: 572f39390e2a4a7abe60e21fcda70b8d_pgvectorpgvectorpg16_d1a106
+2025-08-21T12:14:26.9980594Z ##[command]/usr/bin/docker logs --details e5a198f63d124076b9158e230e65a2f0690d2a50ec0f94effe61d30f4259db42
+2025-08-21T12:14:27.0113176Z  The files belonging to this database system will be owned by user "postgres".
+2025-08-21T12:14:27.0114359Z  This user must also own the server process.
+2025-08-21T12:14:27.0114991Z  
+2025-08-21T12:14:27.0115555Z  The database cluster will be initialized with locale "en_US.utf8".
+2025-08-21T12:14:27.0116275Z  The default database encoding has accordingly been set to "UTF8".
+2025-08-21T12:14:27.0116920Z  The default text search configuration will be set to "english".
+2025-08-21T12:14:27.0117427Z  
+2025-08-21T12:14:27.0117704Z  Data page checksums are disabled.
+2025-08-21T12:14:27.0118072Z  
+2025-08-21T12:14:27.0118510Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2025-08-21T12:14:27.0119113Z  creating subdirectories ... ok
+2025-08-21T12:14:27.0119674Z  selecting dynamic shared memory implementation ... posix
+2025-08-21T12:14:27.0120219Z  selecting default max_connections ... 100
+2025-08-21T12:14:27.0120664Z  selecting default shared_buffers ... 128MB
+2025-08-21T12:14:27.0121095Z  selecting default time zone ... Etc/UTC
+2025-08-21T12:14:27.0121517Z  creating configuration files ... ok
+2025-08-21T12:14:27.0121918Z  running bootstrap script ... ok
+2025-08-21T12:14:27.0123893Z  initdb: warning: enabling "trust" authentication for local connections
+2025-08-21T12:14:27.0124981Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2025-08-21T12:14:27.0126352Z  2025-08-21 12:12:01.089 UTC [1] LOG:  starting PostgreSQL 16.10 (Debian 16.10-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+2025-08-21T12:14:27.0127397Z  2025-08-21 12:12:01.089 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-08-21T12:14:27.0128091Z  2025-08-21 12:12:01.089 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-08-21T12:14:27.0128827Z  2025-08-21 12:12:01.090 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-08-21T12:14:27.0129639Z  2025-08-21 12:12:01.093 UTC [64] LOG:  database system was shut down at 2025-08-21 12:12:00 UTC
+2025-08-21T12:14:27.0130376Z  2025-08-21 12:12:01.097 UTC [1] LOG:  database system is ready to accept connections
+2025-08-21T12:14:27.0131055Z  2025-08-21 12:14:24.994 UTC [187] ERROR:  column does not have dimensions
+2025-08-21T12:14:27.0131796Z  2025-08-21 12:14:24.994 UTC [187] STATEMENT:  CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3
+2025-08-21T12:14:27.0132464Z  	  ON chunk_vec USING hnsw (emb vector_l2_ops)
+2025-08-21T12:14:27.0132904Z  	  WHERE embedding_space='bge-m3';
+2025-08-21T12:14:27.0133396Z  2025-08-21 12:14:24.995 UTC [187] ERROR:  column does not have dimensions
+2025-08-21T12:14:27.0134284Z  2025-08-21 12:14:24.995 UTC [187] STATEMENT:  CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3_cos
+2025-08-21T12:14:27.0135184Z  	  ON chunk_vec USING hnsw (emb vector_cosine_ops)
+2025-08-21T12:14:27.0136017Z  	  WHERE embedding_space='bge-m3';
+2025-08-21T12:14:27.0136498Z  2025-08-21 12:14:24.995 UTC [187] ERROR:  relation "hint" does not exist
+2025-08-21T12:14:27.0137236Z  2025-08-21 12:14:24.995 UTC [187] STATEMENT:  CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
+2025-08-21T12:14:27.0137750Z  2025-08-21 12:14:24.995 UTC [187] ERROR:  relation "entity" does not exist
+2025-08-21T12:14:27.0138205Z  2025-08-21 12:14:24.995 UTC [187] STATEMENT:  CREATE INDEX IF NOT EXISTS idx_entity_ext ON entity (ext_id);
+2025-08-21T12:14:27.0138644Z  performing post-bootstrap initialization ... ok
+2025-08-21T12:14:27.0138931Z  syncing data to disk ... ok
+2025-08-21T12:14:27.0139134Z  
+2025-08-21T12:14:27.0139274Z  
+2025-08-21T12:14:27.0139469Z  Success. You can now start the database server using:
+2025-08-21T12:14:27.0139732Z  
+2025-08-21T12:14:27.0140185Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2025-08-21T12:14:27.0140455Z  
+2025-08-21T12:14:27.0141013Z  waiting for server to start....2025-08-21 12:12:00.778 UTC [48] LOG:  starting PostgreSQL 16.10 (Debian 16.10-1.pgdg12+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit
+2025-08-21T12:14:27.0141881Z  2025-08-21 12:12:00.779 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-08-21T12:14:27.0142463Z  2025-08-21 12:12:00.782 UTC [51] LOG:  database system was shut down at 2025-08-21 12:12:00 UTC
+2025-08-21T12:14:27.0143020Z  2025-08-21 12:12:00.786 UTC [48] LOG:  database system is ready to accept connections
+2025-08-21T12:14:27.0143722Z   done
+2025-08-21T12:14:27.0144064Z  server started
+2025-08-21T12:14:27.0144381Z  CREATE DATABASE
+2025-08-21T12:14:27.0144725Z  
+2025-08-21T12:14:27.0144929Z  
+2025-08-21T12:14:27.0145328Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2025-08-21T12:14:27.0145817Z  
+2025-08-21T12:14:27.0146215Z  waiting for server to shut down...2025-08-21 12:12:00.967 UTC [48] LOG:  received fast shutdown request
+2025-08-21T12:14:27.0156747Z  .2025-08-21 12:12:00.968 UTC [48] LOG:  aborting any active transactions
+2025-08-21T12:14:27.0157637Z  2025-08-21 12:12:00.970 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+2025-08-21T12:14:27.0158368Z  2025-08-21 12:12:00.970 UTC [49] LOG:  shutting down
+2025-08-21T12:14:27.0158939Z  2025-08-21 12:12:00.970 UTC [49] LOG:  checkpoint starting: shutdown immediate
+2025-08-21T12:14:27.0159894Z  2025-08-21 12:12:00.988 UTC [49] LOG:  checkpoint complete: wrote 922 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.014 s, sync=0.003 s, total=0.018 s; sync files=301, longest=0.001 s, average=0.001 s; distance=4255 kB, estimate=4255 kB; lsn=0/1912100, redo lsn=0/1912100
+2025-08-21T12:14:27.0160810Z  2025-08-21 12:12:00.994 UTC [48] LOG:  database system is shut down
+2025-08-21T12:14:27.0161103Z   done
+2025-08-21T12:14:27.0161273Z  server stopped
+2025-08-21T12:14:27.0161446Z  
+2025-08-21T12:14:27.0161666Z  PostgreSQL init process complete; ready for start up.
+2025-08-21T12:14:27.0161939Z  
+2025-08-21T12:14:27.0167640Z Stop and remove container: 572f39390e2a4a7abe60e21fcda70b8d_pgvectorpgvectorpg16_d1a106
+2025-08-21T12:14:27.0172336Z ##[command]/usr/bin/docker rm --force e5a198f63d124076b9158e230e65a2f0690d2a50ec0f94effe61d30f4259db42
+2025-08-21T12:14:30.4583173Z e5a198f63d124076b9158e230e65a2f0690d2a50ec0f94effe61d30f4259db42
+2025-08-21T12:14:30.4611744Z Remove container network: github_network_ee73cb85c7e44b539b7d74bb059924f2
+2025-08-21T12:14:30.4616743Z ##[command]/usr/bin/docker network rm github_network_ee73cb85c7e44b539b7d74bb059924f2
+2025-08-21T12:14:30.5719312Z github_network_ee73cb85c7e44b539b7d74bb059924f2
