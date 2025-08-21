@@ -109,7 +109,7 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                     JOIN chunk c ON c.chunk_id = v.chunk_id
                     JOIN doc d   ON d.doc_id   = c.doc_id
                     WHERE v.embedding_space = %s {cond_sql}
-                    ORDER BY v.emb <-> %s
+                    ORDER BY v.emb <=> %s
                     LIMIT %s
                     """,
                     tuple(params),

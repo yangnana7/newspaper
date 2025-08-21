@@ -52,6 +52,10 @@ CREATE TABLE IF NOT EXISTS chunk_vec (
 CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3
   ON chunk_vec USING hnsw (emb vector_l2_ops)
   WHERE embedding_space='bge-m3';
+-- Cos類似（推奨）: 正規化埋め込みと併用
+CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3_cos
+  ON chunk_vec USING hnsw (emb vector_cosine_ops)
+  WHERE embedding_space='bge-m3';
 
 -- よく使うヒント/エンティティ参照のための補助インデックス
 CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
