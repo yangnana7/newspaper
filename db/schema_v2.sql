@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS doc (
   source_uid     TEXT,                     -- 外部ID
   url_canon      TEXT UNIQUE,              -- 正規化URL
   title_raw      TEXT NOT NULL,            -- 原文タイトル
+  author         TEXT,                     -- 著者（任意）
   lang           TEXT,                     -- 自動判定(ja/en/…)
   published_at   TIMESTAMPTZ NOT NULL,     -- UTC保存
   first_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -18,6 +19,8 @@ CREATE TABLE IF NOT EXISTS doc (
   raw            JSONB                     -- 生ペイロード（必要時のみ全文）
 );
 CREATE INDEX IF NOT EXISTS idx_doc_published ON doc (published_at DESC);
+-- 明示的なURL索引（UNIQUEとは別名で作成）
+CREATE INDEX IF NOT EXISTS idx_doc_url ON doc (url_canon);
 
 -- 2. Chunk（検索の単位；多言語共有空間）
 CREATE TABLE IF NOT EXISTS chunk (
@@ -103,3 +106,10 @@ CREATE TABLE IF NOT EXISTS hint (
   conf    REAL,
   PRIMARY KEY (doc_id, key)
 );
+-- key での参照を高速化
+CREATE INDEX IF NOT EXISTS idx_hint_key ON hint (key);
+
+-- 既存DBへの後方互換的追加（テーブル作成後の適用にも対応）
+DO $$ BEGIN
+  ALTER TABLE doc ADD COLUMN IF NOT EXISTS author TEXT;
+EXCEPTION WHEN duplicate_column THEN NULL; END $$;
