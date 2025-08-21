@@ -31,7 +31,8 @@ mcp = FastMCP("MCPNews")
 
 
 def _try_load_model():
-    if not os.environ.get("ENABLE_SERVER_EMBEDDING"):
+    flag = os.environ.get("ENABLE_SERVER_EMBEDDING", "0").strip().lower()
+    if flag not in ("1", "true", "yes", "on"):
         return None
     try:
         from sentence_transformers import SentenceTransformer
@@ -97,13 +98,15 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
         # Vector search if model is available and chunk_vec exists
         if _MODEL is not None:
             try:
+                from pgvector.psycopg import Vector  # local import to avoid hard dep when unused
                 q_emb = _MODEL.encode([q], normalize_embeddings=True)[0]
                 cond_sql = ""
                 params: List[Any] = [EMBED_SPACE]
                 if since_dt is not None:
                     cond_sql = "AND d.published_at >= %s"
                     params.append(since_dt)
-                params.extend([list(map(float, q_emb)), top_k])
+                qv = Vector(list(map(float, q_emb)))
+                params.extend([qv, top_k])
 
                 cur = conn.execute(
                     f"""
@@ -123,7 +126,10 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                 if rows:
                     return [_row_to_bundle(r) for r in rows]
             except Exception:
-                pass
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
 
         # Fallback: recency
         params2: List[Any] = []
