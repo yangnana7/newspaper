@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timezone
 import psycopg
+from psycopg.types.json import Json
 
 DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/testdb")
 
@@ -29,7 +30,7 @@ def test_insert_and_doc_head():
             ON CONFLICT (url_canon) DO NOTHING
             RETURNING doc_id
             ''',
-            ("test://unit", "https://example.com/x", "Unit Test Title", now, {"k": "v"})
+            ("test://unit", "https://example.com/x", "Unit Test Title", now, Json({"k": "v"}))
         ).fetchone()
         doc_id = row[0] if row else cur.execute("SELECT doc_id FROM doc WHERE url_canon=%s", ("https://example.com/x",)).fetchone()[0]
         cur.execute(
@@ -50,4 +51,3 @@ def test_semantic_search_fallback():
     assert isinstance(res, list)
     assert len(res) >= 1
     assert "title" in res[0] and "published_at" in res[0]
-

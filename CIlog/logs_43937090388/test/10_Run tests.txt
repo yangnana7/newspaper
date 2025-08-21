@@ -1,0 +1,368 @@
+﻿2025-08-21T12:50:33.4737393Z ##[group]Run # Limit collection to repo tests to avoid duplicate names in docs/ci_pack
+2025-08-21T12:50:33.4737937Z [36;1m# Limit collection to repo tests to avoid duplicate names in docs/ci_pack[0m
+2025-08-21T12:50:33.4738306Z [36;1mPYTHONPATH=. pytest -q tests[0m
+2025-08-21T12:50:33.4777365Z shell: /usr/bin/bash -e {0}
+2025-08-21T12:50:33.4777599Z env:
+2025-08-21T12:50:33.4778015Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T12:50:33.4778266Z   EMBED_SPACE: bge-m3
+2025-08-21T12:50:33.4778469Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T12:50:33.4778739Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:50:33.4779328Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T12:50:33.4779751Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:50:33.4780109Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:50:33.4780631Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:50:33.4780979Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T12:50:33.4781289Z ##[endgroup]
+2025-08-21T12:50:48.5536347Z FF.FF.                                                                   [100%]
+2025-08-21T12:50:48.5536949Z =================================== FAILURES ===================================
+2025-08-21T12:50:48.5537506Z ____________________ test_entity_link_stub_inserts_mentions ____________________
+2025-08-21T12:50:48.5537822Z 
+2025-08-21T12:50:48.5537974Z     def test_entity_link_stub_inserts_mentions():
+2025-08-21T12:50:48.5538344Z         from scripts import entity_link_stub
+2025-08-21T12:50:48.5538806Z     
+2025-08-21T12:50:48.5539058Z         with _conn() as conn:
+2025-08-21T12:50:48.5539458Z             cur = conn.cursor()
+2025-08-21T12:50:48.5539916Z             # Insert a fresh doc + chunk
+2025-08-21T12:50:48.5540337Z             now = datetime.now(timezone.utc)
+2025-08-21T12:50:48.5541035Z             url = "https://example.com/entity-stub-test"
+2025-08-21T12:50:48.5541499Z >           cur.execute(
+2025-08-21T12:50:48.5541756Z                 """
+2025-08-21T12:50:48.5542073Z                 INSERT INTO doc (source, url_canon, title_raw, published_at, first_seen_at, raw)
+2025-08-21T12:50:48.5542447Z                 VALUES (%s,%s,%s,%s, now(), %s)
+2025-08-21T12:50:48.5542871Z                 ON CONFLICT (url_canon) DO NOTHING
+2025-08-21T12:50:48.5543319Z                 RETURNING doc_id
+2025-08-21T12:50:48.5543696Z                 """,
+2025-08-21T12:50:48.5544111Z                 ("test://entity", url, "Entity Stub Title", now, {"k": "v"}),
+2025-08-21T12:50:48.5544614Z             )
+2025-08-21T12:50:48.5544777Z 
+2025-08-21T12:50:48.5544922Z tests/test_entity_stub.py:21: 
+2025-08-21T12:50:48.5545343Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:48.5545675Z 
+2025-08-21T12:50:48.5545902Z self = <psycopg.Cursor [no result] [BAD] at 0x7f9000328720>
+2025-08-21T12:50:48.5546888Z query = '\n            INSERT INTO doc (source, url_canon, title_raw, published_at, first_seen_at, raw)\n            VALUES (%s,%s,%s,%s, now(), %s)\n            ON CONFLICT (url_canon) DO NOTHING\n            RETURNING doc_id\n            '
+2025-08-21T12:50:48.5547955Z params = ('test://entity', 'https://example.com/entity-stub-test', 'Entity Stub Title', datetime.datetime(2025, 8, 21, 12, 50, 35, 154517, tzinfo=datetime.timezone.utc), {'k': 'v'})
+2025-08-21T12:50:48.5548499Z 
+2025-08-21T12:50:48.5548570Z     def execute(
+2025-08-21T12:50:48.5548739Z         self,
+2025-08-21T12:50:48.5548907Z         query: Query,
+2025-08-21T12:50:48.5549108Z         params: Params | None = None,
+2025-08-21T12:50:48.5549337Z         *,
+2025-08-21T12:50:48.5549510Z         prepare: bool | None = None,
+2025-08-21T12:50:48.5549744Z         binary: bool | None = None,
+2025-08-21T12:50:48.5549959Z     ) -> Self:
+2025-08-21T12:50:48.5550121Z         """
+2025-08-21T12:50:48.5550306Z         Execute a query or command to the database.
+2025-08-21T12:50:48.5550759Z         """
+2025-08-21T12:50:48.5551230Z         try:
+2025-08-21T12:50:48.5551408Z             with self._conn.lock:
+2025-08-21T12:50:48.5551628Z                 self._conn.wait(
+2025-08-21T12:50:48.5551925Z                     self._execute_gen(query, params, prepare=prepare, binary=binary)
+2025-08-21T12:50:48.5552241Z                 )
+2025-08-21T12:50:48.5552424Z         except e._NO_TRACEBACK as ex:
+2025-08-21T12:50:48.5552662Z >           raise ex.with_traceback(None)
+2025-08-21T12:50:48.5553061Z E           psycopg.ProgrammingError: cannot adapt type 'dict' using placeholder '%s' (format: AUTO)
+2025-08-21T12:50:48.5553549Z 
+2025-08-21T12:50:48.5553859Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/psycopg/cursor.py:97: ProgrammingError
+2025-08-21T12:50:48.5554411Z ______________ test_event_extract_stub_creates_event_and_evidence ______________
+2025-08-21T12:50:48.5554660Z 
+2025-08-21T12:50:48.5554790Z     def test_event_extract_stub_creates_event_and_evidence():
+2025-08-21T12:50:48.5555096Z         from scripts import event_extract_stub
+2025-08-21T12:50:48.5555336Z     
+2025-08-21T12:50:48.5555498Z         with _conn() as conn:
+2025-08-21T12:50:48.5555707Z             cur = conn.cursor()
+2025-08-21T12:50:48.5555939Z             # Insert doc + chunk with no evidence
+2025-08-21T12:50:48.5556204Z             now = datetime.now(timezone.utc)
+2025-08-21T12:50:48.5556483Z             url = "https://example.com/event-stub-test"
+2025-08-21T12:50:48.5556746Z >           cur.execute(
+2025-08-21T12:50:48.5556925Z                 """
+2025-08-21T12:50:48.5557224Z                 INSERT INTO doc (source, url_canon, title_raw, published_at, first_seen_at, raw)
+2025-08-21T12:50:48.5557591Z                 VALUES (%s,%s,%s,%s, now(), %s)
+2025-08-21T12:50:48.5557849Z                 ON CONFLICT (url_canon) DO NOTHING
+2025-08-21T12:50:48.5558088Z                 RETURNING doc_id
+2025-08-21T12:50:48.5558294Z                 """,
+2025-08-21T12:50:48.5558551Z                 ("test://event", url, "Event Stub Title", now, {"k": "v"}),
+2025-08-21T12:50:48.5558828Z             )
+2025-08-21T12:50:48.5558922Z 
+2025-08-21T12:50:48.5559010Z tests/test_event_stub.py:21: 
+2025-08-21T12:50:48.5559248Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:48.5559454Z 
+2025-08-21T12:50:48.5559586Z self = <psycopg.Cursor [no result] [BAD] at 0x7f9000328b40>
+2025-08-21T12:50:48.5560265Z query = '\n            INSERT INTO doc (source, url_canon, title_raw, published_at, first_seen_at, raw)\n            VALUES (%s,%s,%s,%s, now(), %s)\n            ON CONFLICT (url_canon) DO NOTHING\n            RETURNING doc_id\n            '
+2025-08-21T12:50:48.5561508Z params = ('test://event', 'https://example.com/event-stub-test', 'Event Stub Title', datetime.datetime(2025, 8, 21, 12, 50, 35, 191139, tzinfo=datetime.timezone.utc), {'k': 'v'})
+2025-08-21T12:50:48.5562034Z 
+2025-08-21T12:50:48.5562101Z     def execute(
+2025-08-21T12:50:48.5562262Z         self,
+2025-08-21T12:50:48.5562431Z         query: Query,
+2025-08-21T12:50:48.5562637Z         params: Params | None = None,
+2025-08-21T12:50:48.5562850Z         *,
+2025-08-21T12:50:48.5563021Z         prepare: bool | None = None,
+2025-08-21T12:50:48.5563245Z         binary: bool | None = None,
+2025-08-21T12:50:48.5563458Z     ) -> Self:
+2025-08-21T12:50:48.5563618Z         """
+2025-08-21T12:50:48.5563812Z         Execute a query or command to the database.
+2025-08-21T12:50:48.5564046Z         """
+2025-08-21T12:50:48.5564194Z         try:
+2025-08-21T12:50:48.5564358Z             with self._conn.lock:
+2025-08-21T12:50:48.5564576Z                 self._conn.wait(
+2025-08-21T12:50:48.5564881Z                     self._execute_gen(query, params, prepare=prepare, binary=binary)
+2025-08-21T12:50:48.5565186Z                 )
+2025-08-21T12:50:48.5565373Z         except e._NO_TRACEBACK as ex:
+2025-08-21T12:50:48.5565607Z >           raise ex.with_traceback(None)
+2025-08-21T12:50:48.5566009Z E           psycopg.ProgrammingError: cannot adapt type 'dict' using placeholder '%s' (format: AUTO)
+2025-08-21T12:50:48.5566485Z 
+2025-08-21T12:50:48.5566791Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/psycopg/cursor.py:97: ProgrammingError
+2025-08-21T12:50:48.5567321Z ___________________________ test_insert_and_doc_head ___________________________
+2025-08-21T12:50:48.5567545Z 
+2025-08-21T12:50:48.5567630Z     def test_insert_and_doc_head():
+2025-08-21T12:50:48.5567853Z >       from mcp_news import server
+2025-08-21T12:50:48.5568000Z 
+2025-08-21T12:50:48.5568079Z tests/test_smoke.py:21: 
+2025-08-21T12:50:48.5568305Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:48.5568684Z mcp_news/server.py:78: in <module>
+2025-08-21T12:50:48.5568894Z     @mcp.tool()
+2025-08-21T12:50:48.5569060Z      ^^^^^^^^^^
+2025-08-21T12:50:48.5569488Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:421: in decorator
+2025-08-21T12:50:48.5569962Z     self.add_tool(
+2025-08-21T12:50:48.5570532Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:366: in add_tool
+2025-08-21T12:50:48.5571057Z     self._tool_manager.add_tool(
+2025-08-21T12:50:48.5571560Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/tool_manager.py:55: in add_tool
+2025-08-21T12:50:48.5572081Z     tool = Tool.from_function(
+2025-08-21T12:50:48.5572563Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/base.py:71: in from_function
+2025-08-21T12:50:48.5573072Z     func_arg_metadata = func_metadata(
+2025-08-21T12:50:48.5573635Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:271: in func_metadata
+2025-08-21T12:50:48.5574397Z     output_model, output_schema, wrap_output = _try_create_model_and_schema(annotation, func.__name__, output_info)
+2025-08-21T12:50:48.5574849Z                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5575490Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:352: in _try_create_model_and_schema
+2025-08-21T12:50:48.5576175Z     model = _create_wrapped_model(func_name, annotation, field_info)
+2025-08-21T12:50:48.5576481Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5577075Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:436: in _create_wrapped_model
+2025-08-21T12:50:48.5577801Z     return create_model(model_name, result=(annotation, field_info), __base__=BaseModel)
+2025-08-21T12:50:48.5578175Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5578638Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/main.py:1763: in create_model
+2025-08-21T12:50:48.5579074Z     return meta(
+2025-08-21T12:50:48.5579538Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:237: in __new__
+2025-08-21T12:50:48.5580050Z     complete_model_class(
+2025-08-21T12:50:48.5580764Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:597: in complete_model_class
+2025-08-21T12:50:48.5581347Z     schema = gen_schema.generate_schema(cls)
+2025-08-21T12:50:48.5581585Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5582106Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T12:50:48.5582656Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:48.5582897Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5583432Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1004: in _generate_schema_inner
+2025-08-21T12:50:48.5583993Z     return self._model_schema(obj)
+2025-08-21T12:50:48.5584342Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5584831Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in _model_schema
+2025-08-21T12:50:48.5585465Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T12:50:48.5585819Z     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5586364Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in <dictcomp>
+2025-08-21T12:50:48.5587098Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T12:50:48.5587441Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5588001Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1206: in _generate_md_field_schema
+2025-08-21T12:50:48.5588653Z     common_field = self._common_field_schema(name, field_info, decorators)
+2025-08-21T12:50:48.5588980Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5589565Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1372: in _common_field_schema
+2025-08-21T12:50:48.5590153Z     schema = self._apply_annotations(
+2025-08-21T12:50:48.5590984Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2297: in _apply_annotations
+2025-08-21T12:50:48.5591559Z     schema = get_inner_schema(source_type)
+2025-08-21T12:50:48.5591795Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5592313Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_schema_generation_shared.py:83: in __call__
+2025-08-21T12:50:48.5592855Z     schema = self._handler(source_type)
+2025-08-21T12:50:48.5593077Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5593587Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2279: in inner_handler
+2025-08-21T12:50:48.5594127Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:48.5594367Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5594908Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T12:50:48.5595466Z     return self.match_type(obj)
+2025-08-21T12:50:48.5595675Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5596159Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1123: in match_type
+2025-08-21T12:50:48.5596700Z     return self._match_generic_type(obj, origin)
+2025-08-21T12:50:48.5596970Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5597500Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1150: in _match_generic_type
+2025-08-21T12:50:48.5598103Z     return self._list_schema(self._get_first_arg_or_any(obj))
+2025-08-21T12:50:48.5598394Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5598915Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:372: in _list_schema
+2025-08-21T12:50:48.5599512Z     return core_schema.list_schema(self.generate_schema(items_type))
+2025-08-21T12:50:48.5599832Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5600527Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T12:50:48.5601125Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:48.5601367Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5601905Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T12:50:48.5602600Z     return self.match_type(obj)
+2025-08-21T12:50:48.5602805Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5603279Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1091: in match_type
+2025-08-21T12:50:48.5603833Z     return self._typed_dict_schema(obj, None)
+2025-08-21T12:50:48.5604065Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5604318Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:48.5604627Z 
+2025-08-21T12:50:48.5604848Z self = <pydantic._internal._generate_schema.GenerateSchema object at 0x7f8ed411fce0>
+2025-08-21T12:50:48.5605287Z typed_dict_cls = <class 'mcp_news.server.Bundle'>, origin = None
+2025-08-21T12:50:48.5605520Z 
+2025-08-21T12:50:48.5605734Z     def _typed_dict_schema(self, typed_dict_cls: Any, origin: Any) -> core_schema.CoreSchema:
+2025-08-21T12:50:48.5606153Z         """Generate a core schema for a `TypedDict` class.
+2025-08-21T12:50:48.5606420Z     
+2025-08-21T12:50:48.5606743Z         To be able to build a `DecoratorInfos` instance for the `TypedDict` class (which will include
+2025-08-21T12:50:48.5607270Z         validators, serializers, etc.), we need to have access to the original bases of the class
+2025-08-21T12:50:48.5607777Z         (see https://docs.python.org/3/library/types.html#types.get_original_bases).
+2025-08-21T12:50:48.5608332Z         However, the `__orig_bases__` attribute was only added in 3.12 (https://github.com/python/cpython/pull/103698).
+2025-08-21T12:50:48.5608753Z     
+2025-08-21T12:50:48.5609030Z         For this reason, we require Python 3.12 (or using the `typing_extensions` backport).
+2025-08-21T12:50:48.5609375Z         """
+2025-08-21T12:50:48.5609560Z         FieldInfo = import_cached_field_info()
+2025-08-21T12:50:48.5609788Z     
+2025-08-21T12:50:48.5609932Z         with (
+2025-08-21T12:50:48.5610131Z             self.model_type_stack.push(typed_dict_cls),
+2025-08-21T12:50:48.5610643Z             self.defs.get_schema_or_ref(typed_dict_cls) as (
+2025-08-21T12:50:48.5610921Z                 typed_dict_ref,
+2025-08-21T12:50:48.5611130Z                 maybe_schema,
+2025-08-21T12:50:48.5611315Z             ),
+2025-08-21T12:50:48.5611472Z         ):
+2025-08-21T12:50:48.5611639Z             if maybe_schema is not None:
+2025-08-21T12:50:48.5611879Z                 return maybe_schema
+2025-08-21T12:50:48.5612088Z     
+2025-08-21T12:50:48.5612302Z             typevars_map = get_standard_typevars_map(typed_dict_cls)
+2025-08-21T12:50:48.5612607Z             if origin is not None:
+2025-08-21T12:50:48.5612829Z                 typed_dict_cls = origin
+2025-08-21T12:50:48.5613045Z     
+2025-08-21T12:50:48.5613301Z             if not _SUPPORTS_TYPEDDICT and type(typed_dict_cls).__module__ == 'typing':
+2025-08-21T12:50:48.5613654Z >               raise PydanticUserError(
+2025-08-21T12:50:48.5614057Z                     'Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.',
+2025-08-21T12:50:48.5614480Z                     code='typed-dict-version',
+2025-08-21T12:50:48.5614711Z                 )
+2025-08-21T12:50:48.5615172Z E               pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T12:50:48.5615686Z E               
+2025-08-21T12:50:48.5616009Z E               For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T12:50:48.5616326Z 
+2025-08-21T12:50:48.5616705Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1511: PydanticUserError
+2025-08-21T12:50:48.5617328Z ________________________ test_semantic_search_fallback _________________________
+2025-08-21T12:50:48.5617561Z 
+2025-08-21T12:50:48.5617646Z     def test_semantic_search_fallback():
+2025-08-21T12:50:48.5617888Z >       from mcp_news import server
+2025-08-21T12:50:48.5618037Z 
+2025-08-21T12:50:48.5618243Z tests/test_smoke.py:48: 
+2025-08-21T12:50:48.5618474Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:48.5618748Z mcp_news/server.py:78: in <module>
+2025-08-21T12:50:48.5618958Z     @mcp.tool()
+2025-08-21T12:50:48.5619159Z      ^^^^^^^^^^
+2025-08-21T12:50:48.5619577Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:421: in decorator
+2025-08-21T12:50:48.5620053Z     self.add_tool(
+2025-08-21T12:50:48.5620662Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:366: in add_tool
+2025-08-21T12:50:48.5621319Z     self._tool_manager.add_tool(
+2025-08-21T12:50:48.5621830Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/tool_manager.py:55: in add_tool
+2025-08-21T12:50:48.5622362Z     tool = Tool.from_function(
+2025-08-21T12:50:48.5622858Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/base.py:71: in from_function
+2025-08-21T12:50:48.5623379Z     func_arg_metadata = func_metadata(
+2025-08-21T12:50:48.5623945Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:271: in func_metadata
+2025-08-21T12:50:48.5624708Z     output_model, output_schema, wrap_output = _try_create_model_and_schema(annotation, func.__name__, output_info)
+2025-08-21T12:50:48.5625166Z                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5625812Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:352: in _try_create_model_and_schema
+2025-08-21T12:50:48.5626506Z     model = _create_wrapped_model(func_name, annotation, field_info)
+2025-08-21T12:50:48.5626820Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5627419Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:436: in _create_wrapped_model
+2025-08-21T12:50:48.5628141Z     return create_model(model_name, result=(annotation, field_info), __base__=BaseModel)
+2025-08-21T12:50:48.5628520Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5628986Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/main.py:1763: in create_model
+2025-08-21T12:50:48.5629429Z     return meta(
+2025-08-21T12:50:48.5629888Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:237: in __new__
+2025-08-21T12:50:48.5630571Z     complete_model_class(
+2025-08-21T12:50:48.5631353Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:597: in complete_model_class
+2025-08-21T12:50:48.5632008Z     schema = gen_schema.generate_schema(cls)
+2025-08-21T12:50:48.5632314Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5633092Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T12:50:48.5633705Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:48.5634030Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5634779Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1004: in _generate_schema_inner
+2025-08-21T12:50:48.5635404Z     return self._model_schema(obj)
+2025-08-21T12:50:48.5635711Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5636337Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in _model_schema
+2025-08-21T12:50:48.5637070Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T12:50:48.5637510Z     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5638349Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in <dictcomp>
+2025-08-21T12:50:48.5639070Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T12:50:48.5639484Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:48.5691166Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1206: in _generate_md_field_schema
+2025-08-21T12:50:48.5691936Z     common_field = self._common_field_schema(name, field_info, decorators)
+2025-08-21T12:50:48.5692487Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3605233Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1372: in _common_field_schema
+2025-08-21T12:50:49.3607243Z     schema = self._apply_annotations(
+2025-08-21T12:50:49.3608999Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2297: in _apply_annotations
+2025-08-21T12:50:49.3611284Z     schema = get_inner_schema(source_type)
+2025-08-21T12:50:49.3612093Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3613849Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_schema_generation_shared.py:83: in __call__
+2025-08-21T12:50:49.3615181Z     schema = self._handler(source_type)
+2025-08-21T12:50:49.3615620Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3616675Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2279: in inner_handler
+2025-08-21T12:50:49.3617824Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:49.3618318Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3619482Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T12:50:49.3620874Z     return self.match_type(obj)
+2025-08-21T12:50:49.3621343Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3622416Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1123: in match_type
+2025-08-21T12:50:49.3623637Z     return self._match_generic_type(obj, origin)
+2025-08-21T12:50:49.3624197Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3625257Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1150: in _match_generic_type
+2025-08-21T12:50:49.3626365Z     return self._list_schema(self._get_first_arg_or_any(obj))
+2025-08-21T12:50:49.3626877Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3627834Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:372: in _list_schema
+2025-08-21T12:50:49.3628944Z     return core_schema.list_schema(self.generate_schema(items_type))
+2025-08-21T12:50:49.3629552Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3630567Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T12:50:49.3631736Z     schema = self._generate_schema_inner(obj)
+2025-08-21T12:50:49.3632251Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3633261Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T12:50:49.3634340Z     return self.match_type(obj)
+2025-08-21T12:50:49.3634705Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3635578Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1091: in match_type
+2025-08-21T12:50:49.3636573Z     return self._typed_dict_schema(obj, None)
+2025-08-21T12:50:49.3637013Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T12:50:49.3637775Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T12:50:49.3638100Z 
+2025-08-21T12:50:49.3638456Z self = <pydantic._internal._generate_schema.GenerateSchema object at 0x7f8ed416b970>
+2025-08-21T12:50:49.3639332Z typed_dict_cls = <class 'mcp_news.server.Bundle'>, origin = None
+2025-08-21T12:50:49.3639789Z 
+2025-08-21T12:50:49.3640222Z     def _typed_dict_schema(self, typed_dict_cls: Any, origin: Any) -> core_schema.CoreSchema:
+2025-08-21T12:50:49.3641135Z         """Generate a core schema for a `TypedDict` class.
+2025-08-21T12:50:49.3641794Z     
+2025-08-21T12:50:49.3642292Z         To be able to build a `DecoratorInfos` instance for the `TypedDict` class (which will include
+2025-08-21T12:50:49.3643082Z         validators, serializers, etc.), we need to have access to the original bases of the class
+2025-08-21T12:50:49.3643864Z         (see https://docs.python.org/3/library/types.html#types.get_original_bases).
+2025-08-21T12:50:49.3644718Z         However, the `__orig_bases__` attribute was only added in 3.12 (https://github.com/python/cpython/pull/103698).
+2025-08-21T12:50:49.3645337Z     
+2025-08-21T12:50:49.3645753Z         For this reason, we require Python 3.12 (or using the `typing_extensions` backport).
+2025-08-21T12:50:49.3646276Z         """
+2025-08-21T12:50:49.3646552Z         FieldInfo = import_cached_field_info()
+2025-08-21T12:50:49.3646901Z     
+2025-08-21T12:50:49.3647114Z         with (
+2025-08-21T12:50:49.3647418Z             self.model_type_stack.push(typed_dict_cls),
+2025-08-21T12:50:49.3647882Z             self.defs.get_schema_or_ref(typed_dict_cls) as (
+2025-08-21T12:50:49.3648283Z                 typed_dict_ref,
+2025-08-21T12:50:49.3648601Z                 maybe_schema,
+2025-08-21T12:50:49.3648886Z             ),
+2025-08-21T12:50:49.3649123Z         ):
+2025-08-21T12:50:49.3649372Z             if maybe_schema is not None:
+2025-08-21T12:50:49.3649728Z                 return maybe_schema
+2025-08-21T12:50:49.3650040Z     
+2025-08-21T12:50:49.3650364Z             typevars_map = get_standard_typevars_map(typed_dict_cls)
+2025-08-21T12:50:49.3650989Z             if origin is not None:
+2025-08-21T12:50:49.3651325Z                 typed_dict_cls = origin
+2025-08-21T12:50:49.3651650Z     
+2025-08-21T12:50:49.3652040Z             if not _SUPPORTS_TYPEDDICT and type(typed_dict_cls).__module__ == 'typing':
+2025-08-21T12:50:49.3652575Z >               raise PydanticUserError(
+2025-08-21T12:50:49.3653179Z                     'Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.',
+2025-08-21T12:50:49.3653826Z                     code='typed-dict-version',
+2025-08-21T12:50:49.3654173Z                 )
+2025-08-21T12:50:49.3654893Z E               pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T12:50:49.3655681Z E               
+2025-08-21T12:50:49.3656180Z E               For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T12:50:49.3656671Z 
+2025-08-21T12:50:49.3657254Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1511: PydanticUserError
+2025-08-21T12:50:49.3658136Z =========================== short test summary info ============================
+2025-08-21T12:50:49.3659281Z FAILED tests/test_entity_stub.py::test_entity_link_stub_inserts_mentions - psycopg.ProgrammingError: cannot adapt type 'dict' using placeholder '%s' (format: AUTO)
+2025-08-21T12:50:49.3661010Z FAILED tests/test_event_stub.py::test_event_extract_stub_creates_event_and_evidence - psycopg.ProgrammingError: cannot adapt type 'dict' using placeholder '%s' (format: AUTO)
+2025-08-21T12:50:49.3662699Z FAILED tests/test_smoke.py::test_insert_and_doc_head - pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T12:50:49.3663790Z 
+2025-08-21T12:50:49.3664189Z For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T12:50:49.3666015Z FAILED tests/test_smoke.py::test_semantic_search_fallback - pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T12:50:49.3667075Z 
+2025-08-21T12:50:49.3667430Z For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T12:50:49.3668060Z 4 failed, 2 passed in 13.88s
+2025-08-21T12:50:50.0651888Z ##[error]Process completed with exit code 1.

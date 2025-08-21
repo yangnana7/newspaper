@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timezone
 import psycopg
+from psycopg.types.json import Json
 
 
 DB_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/testdb")
@@ -25,7 +26,7 @@ def test_event_extract_stub_creates_event_and_evidence():
             ON CONFLICT (url_canon) DO NOTHING
             RETURNING doc_id
             """,
-            ("test://event", url, "Event Stub Title", now, {"k": "v"}),
+            ("test://event", url, "Event Stub Title", now, Json({"k": "v"})),
         )
         row = cur.fetchone()
         if row:
@@ -49,4 +50,3 @@ def test_event_extract_stub_creates_event_and_evidence():
             (cid,),
         ).fetchone()[0]
         assert ev_cnt >= 1
-

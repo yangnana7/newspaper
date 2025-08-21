@@ -1,5 +1,6 @@
 import os
 import psycopg
+from psycopg.types.json import Json
 from datetime import datetime, timezone
 
 
@@ -25,7 +26,7 @@ def test_entity_link_stub_inserts_mentions():
             ON CONFLICT (url_canon) DO NOTHING
             RETURNING doc_id
             """,
-            ("test://entity", url, "Entity Stub Title", now, {"k": "v"}),
+            ("test://entity", url, "Entity Stub Title", now, Json({"k": "v"})),
         )
         row = cur.fetchone()
         if row:
@@ -46,4 +47,3 @@ def test_entity_link_stub_inserts_mentions():
     with _conn() as conn:
         cnt = conn.execute("SELECT COUNT(*) FROM mention WHERE chunk_id=%s", (cid,)).fetchone()[0]
         assert cnt >= 1
-
