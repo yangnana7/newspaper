@@ -1,0 +1,14 @@
+﻿2025-08-21T12:25:51.4761939Z ##[group]Run python -m compileall -q .
+2025-08-21T12:25:51.4762268Z [36;1mpython -m compileall -q .[0m
+2025-08-21T12:25:51.4801213Z shell: /usr/bin/bash -e {0}
+2025-08-21T12:25:51.4801441Z env:
+2025-08-21T12:25:51.4801881Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T12:25:51.4802136Z   EMBED_SPACE: bge-m3
+2025-08-21T12:25:51.4802332Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T12:25:51.4802608Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:25:51.4802994Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T12:25:51.4803368Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:25:51.4803926Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:25:51.4804270Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:25:51.4804615Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T12:25:51.4804889Z ##[endgroup]

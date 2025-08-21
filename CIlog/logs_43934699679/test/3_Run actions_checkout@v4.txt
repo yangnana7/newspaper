@@ -1,0 +1,89 @@
+﻿2025-08-21T12:12:14.3078660Z ##[group]Run actions/checkout@v4
+2025-08-21T12:12:14.3079219Z with:
+2025-08-21T12:12:14.3079424Z   repository: yangnana7/newspaper
+2025-08-21T12:12:14.3079847Z   token: ***
+2025-08-21T12:12:14.3080053Z   ssh-strict: true
+2025-08-21T12:12:14.3080243Z   ssh-user: git
+2025-08-21T12:12:14.3080446Z   persist-credentials: true
+2025-08-21T12:12:14.3080669Z   clean: true
+2025-08-21T12:12:14.3080868Z   sparse-checkout-cone-mode: true
+2025-08-21T12:12:14.3081109Z   fetch-depth: 1
+2025-08-21T12:12:14.3081297Z   fetch-tags: false
+2025-08-21T12:12:14.3081486Z   show-progress: true
+2025-08-21T12:12:14.3081683Z   lfs: false
+2025-08-21T12:12:14.3081854Z   submodules: false
+2025-08-21T12:12:14.3082075Z   set-safe-directory: true
+2025-08-21T12:12:14.3082455Z env:
+2025-08-21T12:12:14.3082862Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T12:12:14.3083121Z   EMBED_SPACE: bge-m3
+2025-08-21T12:12:14.3083343Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T12:12:14.3083717Z ##[endgroup]
+2025-08-21T12:12:14.4197882Z Syncing repository: yangnana7/newspaper
+2025-08-21T12:12:14.4199402Z ##[group]Getting Git version info
+2025-08-21T12:12:14.4199795Z Working directory is '/home/runner/work/newspaper/newspaper'
+2025-08-21T12:12:14.4200346Z [command]/usr/bin/git version
+2025-08-21T12:12:14.4238750Z git version 2.51.0
+2025-08-21T12:12:14.4265454Z ##[endgroup]
+2025-08-21T12:12:14.4281742Z Temporarily overriding HOME='/home/runner/work/_temp/ad24dab4-9e6c-47e0-b181-9daa7c23b903' before making global git config changes
+2025-08-21T12:12:14.4283078Z Adding repository directory to the temporary git global config as a safe directory
+2025-08-21T12:12:14.4288651Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/newspaper/newspaper
+2025-08-21T12:12:14.4326699Z Deleting the contents of '/home/runner/work/newspaper/newspaper'
+2025-08-21T12:12:14.4410970Z ##[group]Initializing the repository
+2025-08-21T12:12:14.4412252Z [command]/usr/bin/git init /home/runner/work/newspaper/newspaper
+2025-08-21T12:12:14.4414876Z hint: Using 'master' as the name for the initial branch. This default branch name
+2025-08-21T12:12:14.4415830Z hint: is subject to change. To configure the initial branch name to use in all
+2025-08-21T12:12:14.4416580Z hint: of your new repositories, which will suppress this warning, call:
+2025-08-21T12:12:14.4417097Z hint:
+2025-08-21T12:12:14.4417525Z hint: 	git config --global init.defaultBranch <name>
+2025-08-21T12:12:14.4417997Z hint:
+2025-08-21T12:12:14.4418432Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2025-08-21T12:12:14.4419224Z hint: 'development'. The just-created branch can be renamed via this command:
+2025-08-21T12:12:14.4419782Z hint:
+2025-08-21T12:12:14.4420087Z hint: 	git branch -m <name>
+2025-08-21T12:12:14.4420433Z hint:
+2025-08-21T12:12:14.4420933Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2025-08-21T12:12:14.4421455Z Initialized empty Git repository in /home/runner/work/newspaper/newspaper/.git/
+2025-08-21T12:12:14.4422589Z [command]/usr/bin/git remote add origin https://github.com/yangnana7/newspaper
+2025-08-21T12:12:14.4454580Z ##[endgroup]
+2025-08-21T12:12:14.4455201Z ##[group]Disabling automatic garbage collection
+2025-08-21T12:12:14.4460261Z [command]/usr/bin/git config --local gc.auto 0
+2025-08-21T12:12:14.4491281Z ##[endgroup]
+2025-08-21T12:12:14.4491810Z ##[group]Setting up auth
+2025-08-21T12:12:14.4498497Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2025-08-21T12:12:14.4530428Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2025-08-21T12:12:14.4804921Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2025-08-21T12:12:14.4836224Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2025-08-21T12:12:14.5067543Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2025-08-21T12:12:14.5103534Z ##[endgroup]
+2025-08-21T12:12:14.5104504Z ##[group]Fetching the repository
+2025-08-21T12:12:14.5112404Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +3d5d942a0e60b7c5e5bb17c8cdd82a553aecec1f:refs/remotes/pull/1/merge
+2025-08-21T12:12:14.7038542Z From https://github.com/yangnana7/newspaper
+2025-08-21T12:12:14.7040490Z  * [new ref]         3d5d942a0e60b7c5e5bb17c8cdd82a553aecec1f -> pull/1/merge
+2025-08-21T12:12:14.7071210Z ##[endgroup]
+2025-08-21T12:12:14.7074807Z ##[group]Determining the checkout info
+2025-08-21T12:12:14.7075905Z ##[endgroup]
+2025-08-21T12:12:14.7081197Z [command]/usr/bin/git sparse-checkout disable
+2025-08-21T12:12:14.7130938Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2025-08-21T12:12:14.7163977Z ##[group]Checking out the ref
+2025-08-21T12:12:14.7169062Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/1/merge
+2025-08-21T12:12:14.7252108Z Note: switching to 'refs/remotes/pull/1/merge'.
+2025-08-21T12:12:14.7252875Z 
+2025-08-21T12:12:14.7253384Z You are in 'detached HEAD' state. You can look around, make experimental
+2025-08-21T12:12:14.7254849Z changes and commit them, and you can discard any commits you make in this
+2025-08-21T12:12:14.7255689Z state without impacting any branches by switching back to a branch.
+2025-08-21T12:12:14.7256182Z 
+2025-08-21T12:12:14.7256511Z If you want to create a new branch to retain commits you create, you may
+2025-08-21T12:12:14.7257713Z do so (now or later) by using -c with the switch command. Example:
+2025-08-21T12:12:14.7258131Z 
+2025-08-21T12:12:14.7258304Z   git switch -c <new-branch-name>
+2025-08-21T12:12:14.7258604Z 
+2025-08-21T12:12:14.7258766Z Or undo this operation with:
+2025-08-21T12:12:14.7259021Z 
+2025-08-21T12:12:14.7259150Z   git switch -
+2025-08-21T12:12:14.7259383Z 
+2025-08-21T12:12:14.7259735Z Turn off this advice by setting config variable advice.detachedHead to false
+2025-08-21T12:12:14.7260234Z 
+2025-08-21T12:12:14.7260846Z HEAD is now at 3d5d942 Merge 8fc8497242acb30baf7d7aee2ac70e1589917d55 into 134f5f7c6feb77bd120b503088bf5aac11ef1ca2
+2025-08-21T12:12:14.7262722Z ##[endgroup]
+2025-08-21T12:12:14.7303148Z [command]/usr/bin/git log -1 --format=%H
+2025-08-21T12:12:14.7328257Z 3d5d942a0e60b7c5e5bb17c8cdd82a553aecec1f

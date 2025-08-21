@@ -1,7 +1,7 @@
 -- v2 データモデル（言語非依存・AI検索前提）
 
 -- 必要拡張（環境に合わせて導入済みであること）
--- CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector;
 -- CREATE EXTENSION IF NOT EXISTS pgroonga; -- 任意
 
 -- 1. Document（原子）
@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS doc (
   source_uid     TEXT,                     -- 外部ID
   url_canon      TEXT UNIQUE,              -- 正規化URL
   title_raw      TEXT NOT NULL,            -- 原文タイトル
+  author         TEXT,                     -- 著者（任意）
   lang           TEXT,                     -- 自動判定(ja/en/…)
   published_at   TIMESTAMPTZ NOT NULL,     -- UTC保存
   first_seen_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -18,6 +19,8 @@ CREATE TABLE IF NOT EXISTS doc (
   raw            JSONB                     -- 生ペイロード（必要時のみ全文）
 );
 CREATE INDEX IF NOT EXISTS idx_doc_published ON doc (published_at DESC);
+-- 明示的なURL索引（UNIQUEとは別名で作成）
+CREATE INDEX IF NOT EXISTS idx_doc_url ON doc (url_canon);
 
 -- 2. Chunk（検索の単位；多言語共有空間）
 CREATE TABLE IF NOT EXISTS chunk (
@@ -41,7 +44,7 @@ CREATE TABLE IF NOT EXISTS chunk_vec (
   chunk_id        BIGINT REFERENCES chunk(chunk_id) ON DELETE CASCADE,
   embedding_space TEXT NOT NULL,
   dim             INT NOT NULL,
-  emb             vector NOT NULL,
+  emb             vector(768) NOT NULL,
   PRIMARY KEY (chunk_id, embedding_space)
 );
 -- 例: HNSW インデックス（pgvector >=0.5）
@@ -49,10 +52,12 @@ CREATE TABLE IF NOT EXISTS chunk_vec (
 CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3
   ON chunk_vec USING hnsw (emb vector_l2_ops)
   WHERE embedding_space='bge-m3';
+-- Cos類似（推奨）: 正規化埋め込みと併用
+CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3_cos
+  ON chunk_vec USING hnsw (emb vector_cosine_ops)
+  WHERE embedding_space='bge-m3';
 
--- よく使うヒント/エンティティ参照のための補助インデックス
-CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
-CREATE INDEX IF NOT EXISTS idx_entity_ext ON entity (ext_id);
+-- （テーブル定義の後段で作成）
 
 -- 4. Entities（言語非依存のアンカー）
 CREATE TABLE IF NOT EXISTS entity (
@@ -103,3 +108,13 @@ CREATE TABLE IF NOT EXISTS hint (
   conf    REAL,
   PRIMARY KEY (doc_id, key)
 );
+-- よく使うヒント/エンティティ参照のための補助インデックス（テーブル定義後）
+CREATE INDEX IF NOT EXISTS idx_hint_genre ON hint (doc_id) WHERE key='genre_hint';
+CREATE INDEX IF NOT EXISTS idx_entity_ext ON entity (ext_id);
+-- key での参照を高速化
+CREATE INDEX IF NOT EXISTS idx_hint_key ON hint (key);
+
+-- 既存DBへの後方互換的追加（テーブル作成後の適用にも対応）
+DO $$ BEGIN
+  ALTER TABLE doc ADD COLUMN IF NOT EXISTS author TEXT;
+EXCEPTION WHEN duplicate_column THEN NULL; END $$;

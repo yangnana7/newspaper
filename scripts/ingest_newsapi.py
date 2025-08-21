@@ -61,6 +61,7 @@ def insert_article(conn, source_name: str, article: dict, default_genre: str | N
     lang = article.get("language")  # not always present
     source_uid = article.get("url")  # best-effort unique
     summary = (article.get("description") or "").strip()
+    author = article.get("author")
 
     raw = {
         "source": article.get("source"),
@@ -79,12 +80,12 @@ def insert_article(conn, source_name: str, article: dict, default_genre: str | N
         with conn.transaction():
             cur = conn.execute(
                 """
-                INSERT INTO doc (source, source_uid, url_canon, title_raw, lang, published_at, hash_body, raw)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO doc (source, source_uid, url_canon, title_raw, author, lang, published_at, hash_body, raw)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (url_canon) DO UPDATE SET title_raw = EXCLUDED.title_raw
                 RETURNING doc_id
                 """,
-                (source_name, source_uid, url_canon, title, lang, published_at, hash_body, json.dumps(raw)),
+                (source_name, source_uid, url_canon, title, author, lang, published_at, hash_body, json.dumps(raw)),
             )
             r = cur.fetchone()
             if r:

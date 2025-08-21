@@ -93,12 +93,12 @@ def main():
                     with conn.transaction():
                         cur = conn.execute(
                             """
-                            INSERT INTO doc (source, source_uid, url_canon, title_raw, lang, published_at, hash_body, raw)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                            INSERT INTO doc (source, source_uid, url_canon, title_raw, author, lang, published_at, hash_body, raw)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                             ON CONFLICT (url_canon) DO UPDATE SET title_raw = EXCLUDED.title_raw
                             RETURNING doc_id
                             """,
-                            (name, e.get("id"), url_canon, title, lang, published_at, hash_body, json.dumps(raw)),
+                            (name, e.get("id"), url_canon, title, e.get("author"), lang, published_at, hash_body, json.dumps(raw)),
                         )
                         row = cur.fetchone()
                         if row:

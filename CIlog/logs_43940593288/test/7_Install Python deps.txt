@@ -1,0 +1,305 @@
+﻿2025-08-21T13:36:15.6495059Z ##[group]Run python -m pip install --upgrade pip
+2025-08-21T13:36:15.6495468Z [36;1mpython -m pip install --upgrade pip[0m
+2025-08-21T13:36:15.6495841Z [36;1mif [ -f requirements.txt ]; then pip install -r requirements.txt; fi[0m
+2025-08-21T13:36:15.6496294Z [36;1m# Hardening: ensure critical deps even if requirements.txt changes[0m
+2025-08-21T13:36:15.6496655Z [36;1mpip install psycopg[binary] pgvector[0m
+2025-08-21T13:36:15.6496907Z [36;1mpip install pytest[0m
+2025-08-21T13:36:15.6538688Z shell: /usr/bin/bash -e {0}
+2025-08-21T13:36:15.6538908Z env:
+2025-08-21T13:36:15.6539326Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T13:36:15.6539579Z   EMBED_SPACE: bge-m3
+2025-08-21T13:36:15.6539779Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T13:36:15.6540051Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:36:15.6540430Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T13:36:15.6541059Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:36:15.6541441Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:36:15.6541775Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:36:15.6542105Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T13:36:15.6542383Z ##[endgroup]
+2025-08-21T13:36:18.0161458Z Requirement already satisfied: pip in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (25.2)
+2025-08-21T13:36:19.1014800Z Collecting mcp>=1.0.0 (from -r requirements.txt (line 1))
+2025-08-21T13:36:19.1525532Z   Downloading mcp-1.13.0-py3-none-any.whl.metadata (68 kB)
+2025-08-21T13:36:19.1922706Z Collecting psycopg>=3.2.1 (from psycopg[binary]>=3.2.1->-r requirements.txt (line 2))
+2025-08-21T13:36:19.1996377Z   Downloading psycopg-3.2.9-py3-none-any.whl.metadata (4.5 kB)
+2025-08-21T13:36:19.2196866Z Collecting pgvector>=0.2.5 (from -r requirements.txt (line 3))
+2025-08-21T13:36:19.2284781Z   Downloading pgvector-0.4.1-py3-none-any.whl.metadata (18 kB)
+2025-08-21T13:36:19.2476455Z Collecting feedparser>=6.0.11 (from -r requirements.txt (line 4))
+2025-08-21T13:36:19.2562210Z   Downloading feedparser-6.0.11-py3-none-any.whl.metadata (2.4 kB)
+2025-08-21T13:36:19.3875048Z Collecting pydantic>=2.7.0 (from -r requirements.txt (line 5))
+2025-08-21T13:36:19.3952843Z   Downloading pydantic-2.11.7-py3-none-any.whl.metadata (67 kB)
+2025-08-21T13:36:19.4204519Z Collecting sentence-transformers>=2.7.0 (from -r requirements.txt (line 6))
+2025-08-21T13:36:19.4276042Z   Downloading sentence_transformers-5.1.0-py3-none-any.whl.metadata (16 kB)
+2025-08-21T13:36:19.4526352Z Collecting httpx>=0.27.0 (from -r requirements.txt (line 7))
+2025-08-21T13:36:19.4600671Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2025-08-21T13:36:19.4846646Z Collecting anyio>=4.5 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.4919328Z   Downloading anyio-4.10.0-py3-none-any.whl.metadata (4.0 kB)
+2025-08-21T13:36:19.5071424Z Collecting httpx-sse>=0.4 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.5142835Z   Downloading httpx_sse-0.4.1-py3-none-any.whl.metadata (9.4 kB)
+2025-08-21T13:36:19.5457699Z Collecting jsonschema>=4.20.0 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.5533379Z   Downloading jsonschema-4.25.1-py3-none-any.whl.metadata (7.6 kB)
+2025-08-21T13:36:19.5752570Z Collecting pydantic-settings>=2.5.2 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.5832416Z   Downloading pydantic_settings-2.10.1-py3-none-any.whl.metadata (3.4 kB)
+2025-08-21T13:36:19.6107813Z Collecting python-multipart>=0.0.9 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.6180824Z   Downloading python_multipart-0.0.20-py3-none-any.whl.metadata (1.8 kB)
+2025-08-21T13:36:19.6395555Z Collecting sse-starlette>=1.6.1 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.6467010Z   Downloading sse_starlette-3.0.2-py3-none-any.whl.metadata (11 kB)
+2025-08-21T13:36:19.6805668Z Collecting starlette>=0.27 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.6878106Z   Downloading starlette-0.47.2-py3-none-any.whl.metadata (6.2 kB)
+2025-08-21T13:36:19.7191307Z Collecting uvicorn>=0.31.1 (from mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:19.7263901Z   Downloading uvicorn-0.35.0-py3-none-any.whl.metadata (6.5 kB)
+2025-08-21T13:36:19.7423963Z Collecting annotated-types>=0.6.0 (from pydantic>=2.7.0->-r requirements.txt (line 5))
+2025-08-21T13:36:19.7498066Z   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+2025-08-21T13:36:20.3761677Z Collecting pydantic-core==2.33.2 (from pydantic>=2.7.0->-r requirements.txt (line 5))
+2025-08-21T13:36:20.3841032Z   Downloading pydantic_core-2.33.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+2025-08-21T13:36:20.4052879Z Collecting typing-extensions>=4.12.2 (from pydantic>=2.7.0->-r requirements.txt (line 5))
+2025-08-21T13:36:20.4125220Z   Downloading typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+2025-08-21T13:36:20.4270986Z Collecting typing-inspection>=0.4.0 (from pydantic>=2.7.0->-r requirements.txt (line 5))
+2025-08-21T13:36:20.4344489Z   Downloading typing_inspection-0.4.1-py3-none-any.whl.metadata (2.6 kB)
+2025-08-21T13:36:20.6389176Z Collecting numpy (from pgvector>=0.2.5->-r requirements.txt (line 3))
+2025-08-21T13:36:20.6465942Z   Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+2025-08-21T13:36:20.6698300Z Collecting sgmllib3k (from feedparser>=6.0.11->-r requirements.txt (line 4))
+2025-08-21T13:36:20.6771226Z   Downloading sgmllib3k-1.0.0.tar.gz (5.8 kB)
+2025-08-21T13:36:20.6837748Z   Installing build dependencies: started
+2025-08-21T13:36:22.0024531Z   Installing build dependencies: finished with status 'done'
+2025-08-21T13:36:22.0031276Z   Getting requirements to build wheel: started
+2025-08-21T13:36:22.3726161Z   Getting requirements to build wheel: finished with status 'done'
+2025-08-21T13:36:22.3734990Z   Preparing metadata (pyproject.toml): started
+2025-08-21T13:36:22.5483581Z   Preparing metadata (pyproject.toml): finished with status 'done'
+2025-08-21T13:36:22.5920843Z Collecting transformers<5.0.0,>=4.41.0 (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:22.5996431Z   Downloading transformers-4.55.3-py3-none-any.whl.metadata (41 kB)
+2025-08-21T13:36:22.7841381Z Collecting tqdm (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:22.7916329Z   Downloading tqdm-4.67.1-py3-none-any.whl.metadata (57 kB)
+2025-08-21T13:36:22.8466595Z Collecting torch>=1.11.0 (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:22.8544752Z   Downloading torch-2.8.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (30 kB)
+2025-08-21T13:36:22.9426692Z Collecting scikit-learn (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:22.9502298Z   Downloading scikit_learn-1.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (11 kB)
+2025-08-21T13:36:23.0764028Z Collecting scipy (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.0840582Z   Downloading scipy-1.16.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (61 kB)
+2025-08-21T13:36:23.1864011Z Collecting huggingface-hub>=0.20.0 (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.1941876Z   Downloading huggingface_hub-0.34.4-py3-none-any.whl.metadata (14 kB)
+2025-08-21T13:36:23.3925814Z Collecting Pillow (from sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.4036303Z   Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+2025-08-21T13:36:23.4358598Z Collecting filelock (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.4433457Z   Downloading filelock-3.19.1-py3-none-any.whl.metadata (2.1 kB)
+2025-08-21T13:36:23.4788385Z Collecting packaging>=20.0 (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.4861651Z   Downloading packaging-25.0-py3-none-any.whl.metadata (3.3 kB)
+2025-08-21T13:36:23.5251346Z Collecting pyyaml>=5.1 (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.5328195Z   Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.1 kB)
+2025-08-21T13:36:23.9047608Z Collecting regex!=2019.12.17 (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.9134481Z   Downloading regex-2025.7.34-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+2025-08-21T13:36:23.9464579Z Collecting requests (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:23.9542194Z   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+2025-08-21T13:36:24.1140322Z Collecting tokenizers<0.22,>=0.21 (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:24.1217574Z   Downloading tokenizers-0.21.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.7 kB)
+2025-08-21T13:36:24.2414825Z Collecting safetensors>=0.4.3 (from transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:24.2494519Z   Downloading safetensors-0.6.2-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+2025-08-21T13:36:24.2965051Z Collecting fsspec>=2023.5.0 (from huggingface-hub>=0.20.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:24.3037536Z   Downloading fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+2025-08-21T13:36:24.3816940Z Collecting hf-xet<2.0.0,>=1.1.3 (from huggingface-hub>=0.20.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:24.3891228Z   Downloading hf_xet-1.1.8-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (703 bytes)
+2025-08-21T13:36:24.4241180Z Collecting certifi (from httpx>=0.27.0->-r requirements.txt (line 7))
+2025-08-21T13:36:24.4346831Z   Downloading certifi-2025.8.3-py3-none-any.whl.metadata (2.4 kB)
+2025-08-21T13:36:24.4578631Z Collecting httpcore==1.* (from httpx>=0.27.0->-r requirements.txt (line 7))
+2025-08-21T13:36:24.4648754Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2025-08-21T13:36:24.5491561Z Collecting idna (from httpx>=0.27.0->-r requirements.txt (line 7))
+2025-08-21T13:36:24.5587713Z   Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+2025-08-21T13:36:24.5752342Z Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.27.0->-r requirements.txt (line 7))
+2025-08-21T13:36:24.5823611Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2025-08-21T13:36:24.6001581Z Collecting sniffio>=1.1 (from anyio>=4.5->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:24.6074648Z   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2025-08-21T13:36:24.6302887Z Collecting attrs>=22.2.0 (from jsonschema>=4.20.0->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:24.6372608Z   Downloading attrs-25.3.0-py3-none-any.whl.metadata (10 kB)
+2025-08-21T13:36:24.6608914Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=4.20.0->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:24.6680299Z   Downloading jsonschema_specifications-2025.4.1-py3-none-any.whl.metadata (2.9 kB)
+2025-08-21T13:36:24.6966456Z Collecting referencing>=0.28.4 (from jsonschema>=4.20.0->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:24.7039152Z   Downloading referencing-0.36.2-py3-none-any.whl.metadata (2.8 kB)
+2025-08-21T13:36:24.9563662Z Collecting rpds-py>=0.7.1 (from jsonschema>=4.20.0->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:24.9640253Z   Downloading rpds_py-0.27.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+2025-08-21T13:36:25.1181643Z Collecting psycopg-binary==3.2.9 (from psycopg[binary]>=3.2.1->-r requirements.txt (line 2))
+2025-08-21T13:36:25.1265659Z   Downloading psycopg_binary-3.2.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.9 kB)
+2025-08-21T13:36:25.1509642Z Collecting python-dotenv>=0.21.0 (from pydantic-settings>=2.5.2->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:25.1588556Z   Downloading python_dotenv-1.1.1-py3-none-any.whl.metadata (24 kB)
+2025-08-21T13:36:25.2178462Z Collecting sympy>=1.13.3 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.2253999Z   Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+2025-08-21T13:36:25.2532314Z Collecting networkx (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.2609919Z   Downloading networkx-3.5-py3-none-any.whl.metadata (6.3 kB)
+2025-08-21T13:36:25.2868577Z Collecting jinja2 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.2947023Z   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+2025-08-21T13:36:25.3132914Z Collecting nvidia-cuda-nvrtc-cu12==12.8.93 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.3210022Z   Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.3379672Z Collecting nvidia-cuda-runtime-cu12==12.8.90 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.3453487Z   Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.3621862Z Collecting nvidia-cuda-cupti-cu12==12.8.90 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.3707625Z   Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.3892687Z Collecting nvidia-cudnn-cu12==9.10.2.21 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.3968160Z   Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+2025-08-21T13:36:25.4144568Z Collecting nvidia-cublas-cu12==12.8.4.1 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.4218045Z   Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.4392630Z Collecting nvidia-cufft-cu12==11.3.3.83 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.4468805Z   Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.4639106Z Collecting nvidia-curand-cu12==10.3.9.90 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.4711598Z   Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.4879711Z Collecting nvidia-cusolver-cu12==11.7.3.90 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.4955445Z   Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+2025-08-21T13:36:25.5119368Z Collecting nvidia-cusparse-cu12==12.5.8.93 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.5191053Z   Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+2025-08-21T13:36:25.5338160Z Collecting nvidia-cusparselt-cu12==0.7.1 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.5411494Z   Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl.metadata (7.0 kB)
+2025-08-21T13:36:25.5566644Z Collecting nvidia-nccl-cu12==2.27.3 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.5639081Z   Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+2025-08-21T13:36:25.5806899Z Collecting nvidia-nvtx-cu12==12.8.90 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.5878148Z   Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+2025-08-21T13:36:25.6047020Z Collecting nvidia-nvjitlink-cu12==12.8.93 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.6122055Z   Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.6258383Z Collecting nvidia-cufile-cu12==1.13.1.3 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.6336412Z   Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.6518472Z Collecting triton==3.4.0 (from torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.6590011Z   Downloading triton-3.4.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+2025-08-21T13:36:25.6822576Z Requirement already satisfied: setuptools>=40.8.0 in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (from triton==3.4.0->torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6)) (65.5.0)
+2025-08-21T13:36:25.7025740Z Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.7095998Z   Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+2025-08-21T13:36:25.7433455Z Collecting click>=7.0 (from uvicorn>=0.31.1->mcp>=1.0.0->-r requirements.txt (line 1))
+2025-08-21T13:36:25.7510975Z   Downloading click-8.2.1-py3-none-any.whl.metadata (2.5 kB)
+2025-08-21T13:36:25.8108262Z Collecting MarkupSafe>=2.0 (from jinja2->torch>=1.11.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.8188298Z   Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+2025-08-21T13:36:25.9875576Z Collecting charset_normalizer<4,>=2 (from requests->transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:25.9954930Z   Downloading charset_normalizer-3.4.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (36 kB)
+2025-08-21T13:36:26.0332267Z Collecting urllib3<3,>=1.21.1 (from requests->transformers<5.0.0,>=4.41.0->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:26.0409256Z   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+2025-08-21T13:36:26.0894081Z Collecting joblib>=1.2.0 (from scikit-learn->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:26.0971477Z   Downloading joblib-1.5.1-py3-none-any.whl.metadata (5.6 kB)
+2025-08-21T13:36:26.1128091Z Collecting threadpoolctl>=3.1.0 (from scikit-learn->sentence-transformers>=2.7.0->-r requirements.txt (line 6))
+2025-08-21T13:36:26.1201222Z   Downloading threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)
+2025-08-21T13:36:26.1482373Z Downloading mcp-1.13.0-py3-none-any.whl (160 kB)
+2025-08-21T13:36:26.1635712Z Downloading pydantic-2.11.7-py3-none-any.whl (444 kB)
+2025-08-21T13:36:26.1790141Z Downloading pydantic_core-2.33.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+2025-08-21T13:36:26.1942687Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 141.7 MB/s  0:00:00
+2025-08-21T13:36:26.2016237Z Downloading psycopg-3.2.9-py3-none-any.whl (202 kB)
+2025-08-21T13:36:26.2118823Z Downloading pgvector-0.4.1-py3-none-any.whl (27 kB)
+2025-08-21T13:36:26.2214709Z Downloading feedparser-6.0.11-py3-none-any.whl (81 kB)
+2025-08-21T13:36:26.2309330Z Downloading sentence_transformers-5.1.0-py3-none-any.whl (483 kB)
+2025-08-21T13:36:26.2445672Z Downloading transformers-4.55.3-py3-none-any.whl (11.3 MB)
+2025-08-21T13:36:26.3091026Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 178.9 MB/s  0:00:00
+2025-08-21T13:36:26.3164804Z Downloading huggingface_hub-0.34.4-py3-none-any.whl (561 kB)
+2025-08-21T13:36:26.3221346Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 561.5/561.5 kB 93.0 MB/s  0:00:00
+2025-08-21T13:36:26.3324531Z Downloading hf_xet-1.1.8-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.2 MB)
+2025-08-21T13:36:26.3485284Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 212.2 MB/s  0:00:00
+2025-08-21T13:36:26.3562391Z Downloading tokenizers-0.21.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+2025-08-21T13:36:26.3717526Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 220.8 MB/s  0:00:00
+2025-08-21T13:36:26.3791107Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2025-08-21T13:36:26.3885930Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2025-08-21T13:36:26.3979007Z Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+2025-08-21T13:36:26.4069411Z Downloading anyio-4.10.0-py3-none-any.whl (107 kB)
+2025-08-21T13:36:26.4161036Z Downloading fsspec-2025.7.0-py3-none-any.whl (199 kB)
+2025-08-21T13:36:26.4268962Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2025-08-21T13:36:26.4358408Z Downloading httpx_sse-0.4.1-py3-none-any.whl (8.1 kB)
+2025-08-21T13:36:26.4449734Z Downloading idna-3.10-py3-none-any.whl (70 kB)
+2025-08-21T13:36:26.4542213Z Downloading jsonschema-4.25.1-py3-none-any.whl (90 kB)
+2025-08-21T13:36:26.4635977Z Downloading attrs-25.3.0-py3-none-any.whl (63 kB)
+2025-08-21T13:36:26.4726416Z Downloading jsonschema_specifications-2025.4.1-py3-none-any.whl (18 kB)
+2025-08-21T13:36:26.4814706Z Downloading numpy-2.3.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+2025-08-21T13:36:26.5528118Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 242.7 MB/s  0:00:00
+2025-08-21T13:36:26.5603417Z Downloading packaging-25.0-py3-none-any.whl (66 kB)
+2025-08-21T13:36:26.5702966Z Downloading psycopg_binary-3.2.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.5 MB)
+2025-08-21T13:36:26.6161357Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 105.9 MB/s  0:00:00
+2025-08-21T13:36:26.6234065Z Downloading pydantic_settings-2.10.1-py3-none-any.whl (45 kB)
+2025-08-21T13:36:26.6323945Z Downloading python_dotenv-1.1.1-py3-none-any.whl (20 kB)
+2025-08-21T13:36:26.6429358Z Downloading python_multipart-0.0.20-py3-none-any.whl (24 kB)
+2025-08-21T13:36:26.6518967Z Downloading PyYAML-6.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (762 kB)
+2025-08-21T13:36:26.6581909Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 763.0/763.0 kB 126.0 MB/s  0:00:00
+2025-08-21T13:36:26.6652589Z Downloading referencing-0.36.2-py3-none-any.whl (26 kB)
+2025-08-21T13:36:26.6742114Z Downloading regex-2025.7.34-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (798 kB)
+2025-08-21T13:36:26.6809563Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 798.9/798.9 kB 123.0 MB/s  0:00:00
+2025-08-21T13:36:26.6881452Z Downloading rpds_py-0.27.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (383 kB)
+2025-08-21T13:36:26.6992470Z Downloading safetensors-0.6.2-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (485 kB)
+2025-08-21T13:36:26.7102617Z Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+2025-08-21T13:36:26.7197627Z Downloading sse_starlette-3.0.2-py3-none-any.whl (11 kB)
+2025-08-21T13:36:26.7286432Z Downloading starlette-0.47.2-py3-none-any.whl (72 kB)
+2025-08-21T13:36:26.7381779Z Downloading torch-2.8.0-cp311-cp311-manylinux_2_28_x86_64.whl (888.1 MB)
+2025-08-21T13:36:34.8723538Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 888.1/888.1 MB 54.1 MB/s  0:00:08
+2025-08-21T13:36:34.8799619Z Downloading nvidia_cublas_cu12-12.8.4.1-py3-none-manylinux_2_27_x86_64.whl (594.3 MB)
+2025-08-21T13:36:40.5622574Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 594.3/594.3 MB 59.4 MB/s  0:00:05
+2025-08-21T13:36:40.5702547Z Downloading nvidia_cuda_cupti_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.2 MB)
+2025-08-21T13:36:40.6202292Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.2/10.2 MB 211.9 MB/s  0:00:00
+2025-08-21T13:36:40.6290306Z Downloading nvidia_cuda_nvrtc_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (88.0 MB)
+2025-08-21T13:36:41.0906245Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.0/88.0 MB 191.3 MB/s  0:00:00
+2025-08-21T13:36:41.0987273Z Downloading nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (954 kB)
+2025-08-21T13:36:41.1210607Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 954.8/954.8 kB 46.4 MB/s  0:00:00
+2025-08-21T13:36:41.1283040Z Downloading nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl (706.8 MB)
+2025-08-21T13:36:47.5346161Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 706.8/706.8 MB 55.3 MB/s  0:00:06
+2025-08-21T13:36:47.5427010Z Downloading nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (193.1 MB)
+2025-08-21T13:36:48.8416961Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 193.1/193.1 MB 148.8 MB/s  0:00:01
+2025-08-21T13:36:48.8498171Z Downloading nvidia_cufile_cu12-1.13.1.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+2025-08-21T13:36:48.8605460Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 112.5 MB/s  0:00:00
+2025-08-21T13:36:48.8679639Z Downloading nvidia_curand_cu12-10.3.9.90-py3-none-manylinux_2_27_x86_64.whl (63.6 MB)
+2025-08-21T13:36:49.2524715Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.6/63.6 MB 166.3 MB/s  0:00:00
+2025-08-21T13:36:49.2601942Z Downloading nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl (267.5 MB)
+2025-08-21T13:36:51.1406639Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 267.5/267.5 MB 141.2 MB/s  0:00:01
+2025-08-21T13:36:51.1488839Z Downloading nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (288.2 MB)
+2025-08-21T13:36:54.6037566Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 288.2/288.2 MB 79.1 MB/s  0:00:03
+2025-08-21T13:36:54.6115805Z Downloading nvidia_cusparselt_cu12-0.7.1-py3-none-manylinux2014_x86_64.whl (287.2 MB)
+2025-08-21T13:36:56.8045512Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 287.2/287.2 MB 128.2 MB/s  0:00:02
+2025-08-21T13:36:56.8125375Z Downloading nvidia_nccl_cu12-2.27.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (322.4 MB)
+2025-08-21T13:37:00.0598523Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 322.4/322.4 MB 90.8 MB/s  0:00:03
+2025-08-21T13:37:00.0677682Z Downloading nvidia_nvjitlink_cu12-12.8.93-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.3 MB)
+2025-08-21T13:37:00.2778124Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.3/39.3 MB 188.0 MB/s  0:00:00
+2025-08-21T13:37:00.2853942Z Downloading nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+2025-08-21T13:37:00.2960193Z Downloading triton-3.4.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.5 MB)
+2025-08-21T13:37:01.2175003Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.5/155.5 MB 169.5 MB/s  0:00:00
+2025-08-21T13:37:01.2252168Z Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+2025-08-21T13:37:01.2607293Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 183.1 MB/s  0:00:00
+2025-08-21T13:37:01.2682662Z Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+2025-08-21T13:37:01.2737468Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 85.0 MB/s  0:00:00
+2025-08-21T13:37:01.2811515Z Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)
+2025-08-21T13:37:01.2904635Z Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+2025-08-21T13:37:01.2995320Z Downloading typing_inspection-0.4.1-py3-none-any.whl (14 kB)
+2025-08-21T13:37:01.3091738Z Downloading uvicorn-0.35.0-py3-none-any.whl (66 kB)
+2025-08-21T13:37:01.3184080Z Downloading click-8.2.1-py3-none-any.whl (102 kB)
+2025-08-21T13:37:01.3281463Z Downloading certifi-2025.8.3-py3-none-any.whl (161 kB)
+2025-08-21T13:37:01.3399417Z Downloading filelock-3.19.1-py3-none-any.whl (15 kB)
+2025-08-21T13:37:01.3494819Z Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+2025-08-21T13:37:01.3591628Z Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+2025-08-21T13:37:01.3685034Z Downloading networkx-3.5-py3-none-any.whl (2.0 MB)
+2025-08-21T13:37:01.3823488Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 155.5 MB/s  0:00:00
+2025-08-21T13:37:01.3899685Z Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+2025-08-21T13:37:01.4274884Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 182.0 MB/s  0:00:00
+2025-08-21T13:37:01.4349886Z Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+2025-08-21T13:37:01.4470488Z Downloading charset_normalizer-3.4.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (150 kB)
+2025-08-21T13:37:01.4571245Z Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+2025-08-21T13:37:01.4669282Z Downloading scikit_learn-1.7.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (9.7 MB)
+2025-08-21T13:37:01.5552990Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.7/9.7 MB 111.1 MB/s  0:00:00
+2025-08-21T13:37:01.5629367Z Downloading joblib-1.5.1-py3-none-any.whl (307 kB)
+2025-08-21T13:37:01.5736841Z Downloading scipy-1.16.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (35.4 MB)
+2025-08-21T13:37:01.7706251Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.4/35.4 MB 180.8 MB/s  0:00:00
+2025-08-21T13:37:01.7780372Z Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+2025-08-21T13:37:04.7625694Z Building wheels for collected packages: sgmllib3k
+2025-08-21T13:37:04.7633500Z   Building wheel for sgmllib3k (pyproject.toml): started
+2025-08-21T13:37:04.9652629Z   Building wheel for sgmllib3k (pyproject.toml): finished with status 'done'
+2025-08-21T13:37:04.9659464Z   Created wheel for sgmllib3k: filename=sgmllib3k-1.0.0-py3-none-any.whl size=6089 sha256=8b98c48e127aae587e064793baa0ee02b97d4261a970d39388fdd73e8037a59a
+2025-08-21T13:37:04.9661727Z   Stored in directory: /home/runner/.cache/pip/wheels/3b/25/2a/105d6a15df6914f4d15047691c6c28f9052cc1173e40285d03
+2025-08-21T13:37:04.9676721Z Successfully built sgmllib3k
+2025-08-21T13:37:05.1733757Z Installing collected packages: sgmllib3k, nvidia-cusparselt-cu12, mpmath, urllib3, typing-extensions, triton, tqdm, threadpoolctl, sympy, sniffio, safetensors, rpds-py, regex, pyyaml, python-multipart, python-dotenv, psycopg-binary, Pillow, packaging, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, networkx, MarkupSafe, joblib, idna, httpx-sse, hf-xet, h11, fsspec, filelock, feedparser, click, charset_normalizer, certifi, attrs, annotated-types, uvicorn, typing-inspection, scipy, requests, referencing, pydantic-core, psycopg, pgvector, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, httpcore, anyio, starlette, sse-starlette, scikit-learn, pydantic, nvidia-cusolver-cu12, jsonschema-specifications, huggingface-hub, httpx, torch, tokenizers, pydantic-settings, jsonschema, transformers, mcp, sentence-transformers
+2025-08-21T13:38:11.4015825Z 
+2025-08-21T13:38:11.4055068Z Successfully installed MarkupSafe-3.0.2 Pillow-11.3.0 annotated-types-0.7.0 anyio-4.10.0 attrs-25.3.0 certifi-2025.8.3 charset_normalizer-3.4.3 click-8.2.1 feedparser-6.0.11 filelock-3.19.1 fsspec-2025.7.0 h11-0.16.0 hf-xet-1.1.8 httpcore-1.0.9 httpx-0.28.1 httpx-sse-0.4.1 huggingface-hub-0.34.4 idna-3.10 jinja2-3.1.6 joblib-1.5.1 jsonschema-4.25.1 jsonschema-specifications-2025.4.1 mcp-1.13.0 mpmath-1.3.0 networkx-3.5 numpy-2.3.2 nvidia-cublas-cu12-12.8.4.1 nvidia-cuda-cupti-cu12-12.8.90 nvidia-cuda-nvrtc-cu12-12.8.93 nvidia-cuda-runtime-cu12-12.8.90 nvidia-cudnn-cu12-9.10.2.21 nvidia-cufft-cu12-11.3.3.83 nvidia-cufile-cu12-1.13.1.3 nvidia-curand-cu12-10.3.9.90 nvidia-cusolver-cu12-11.7.3.90 nvidia-cusparse-cu12-12.5.8.93 nvidia-cusparselt-cu12-0.7.1 nvidia-nccl-cu12-2.27.3 nvidia-nvjitlink-cu12-12.8.93 nvidia-nvtx-cu12-12.8.90 packaging-25.0 pgvector-0.4.1 psycopg-3.2.9 psycopg-binary-3.2.9 pydantic-2.11.7 pydantic-core-2.33.2 pydantic-settings-2.10.1 python-dotenv-1.1.1 python-multipart-0.0.20 pyyaml-6.0.2 referencing-0.36.2 regex-2025.7.34 requests-2.32.5 rpds-py-0.27.0 safetensors-0.6.2 scikit-learn-1.7.1 scipy-1.16.1 sentence-transformers-5.1.0 sgmllib3k-1.0.0 sniffio-1.3.1 sse-starlette-3.0.2 starlette-0.47.2 sympy-1.14.0 threadpoolctl-3.6.0 tokenizers-0.21.4 torch-2.8.0 tqdm-4.67.1 transformers-4.55.3 triton-3.4.0 typing-extensions-4.14.1 typing-inspection-0.4.1 urllib3-2.5.0 uvicorn-0.35.0
+2025-08-21T13:38:13.1379534Z Requirement already satisfied: pgvector in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (0.4.1)
+2025-08-21T13:38:13.1382718Z Requirement already satisfied: psycopg[binary] in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (3.2.9)
+2025-08-21T13:38:13.1400522Z Requirement already satisfied: typing-extensions>=4.6 in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (from psycopg[binary]) (4.14.1)
+2025-08-21T13:38:13.1411413Z Requirement already satisfied: psycopg-binary==3.2.9 in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (from psycopg[binary]) (3.2.9)
+2025-08-21T13:38:13.1455969Z Requirement already satisfied: numpy in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (from pgvector) (2.3.2)
+2025-08-21T13:38:13.8034911Z Collecting pytest
+2025-08-21T13:38:13.8499809Z   Downloading pytest-8.4.1-py3-none-any.whl.metadata (7.7 kB)
+2025-08-21T13:38:13.8667499Z Collecting iniconfig>=1 (from pytest)
+2025-08-21T13:38:13.8745887Z   Downloading iniconfig-2.1.0-py3-none-any.whl.metadata (2.7 kB)
+2025-08-21T13:38:13.8781154Z Requirement already satisfied: packaging>=20 in /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages (from pytest) (25.0)
+2025-08-21T13:38:13.8941098Z Collecting pluggy<2,>=1.5 (from pytest)
+2025-08-21T13:38:13.9016332Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2025-08-21T13:38:13.9267179Z Collecting pygments>=2.7.2 (from pytest)
+2025-08-21T13:38:13.9347099Z   Downloading pygments-2.19.2-py3-none-any.whl.metadata (2.5 kB)
+2025-08-21T13:38:13.9471937Z Downloading pytest-8.4.1-py3-none-any.whl (365 kB)
+2025-08-21T13:38:13.9782962Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2025-08-21T13:38:13.9875571Z Downloading iniconfig-2.1.0-py3-none-any.whl (6.0 kB)
+2025-08-21T13:38:13.9966254Z Downloading pygments-2.19.2-py3-none-any.whl (1.2 MB)
+2025-08-21T13:38:14.0124484Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 76.7 MB/s  0:00:00
+2025-08-21T13:38:14.1732531Z Installing collected packages: pygments, pluggy, iniconfig, pytest
+2025-08-21T13:38:15.0504661Z 
+2025-08-21T13:38:15.0539740Z Successfully installed iniconfig-2.1.0 pluggy-1.6.0 pygments-2.19.2 pytest-8.4.1

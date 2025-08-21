@@ -1,0 +1,101 @@
+﻿2025-08-21T12:47:52.5297763Z ##[group]Run sudo apt-get update
+2025-08-21T12:47:52.5298124Z [36;1msudo apt-get update[0m
+2025-08-21T12:47:52.5298453Z [36;1msudo apt-get install -y postgresql-client[0m
+2025-08-21T12:47:52.6129687Z shell: /usr/bin/bash -e {0}
+2025-08-21T12:47:52.6129996Z env:
+2025-08-21T12:47:52.6130695Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T12:47:52.6131022Z   EMBED_SPACE: bge-m3
+2025-08-21T12:47:52.6131271Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T12:47:52.6131634Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:47:52.6132167Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T12:47:52.6132678Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:47:52.6133127Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:47:52.6133570Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T12:47:52.6134020Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T12:47:52.6134388Z ##[endgroup]
+2025-08-21T12:47:52.8142733Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2025-08-21T12:47:52.8538902Z Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
+2025-08-21T12:47:52.8544414Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2025-08-21T12:47:52.9274350Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2025-08-21T12:47:52.9307783Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2025-08-21T12:47:52.9521343Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2025-08-21T12:47:52.9703229Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2025-08-21T12:47:53.1096449Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [33.2 kB]
+2025-08-21T12:47:53.1190619Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [48.6 kB]
+2025-08-21T12:47:53.1233517Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [9870 B]
+2025-08-21T12:47:53.2583223Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1350 kB]
+2025-08-21T12:47:53.2690288Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [268 kB]
+2025-08-21T12:47:53.2720015Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [175 kB]
+2025-08-21T12:47:53.2743703Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1124 kB]
+2025-08-21T12:47:53.2823292Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [288 kB]
+2025-08-21T12:47:53.2870102Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [377 kB]
+2025-08-21T12:47:53.2899918Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1728 kB]
+2025-08-21T12:47:53.3015204Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [382 kB]
+2025-08-21T12:47:53.3053576Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Components [212 B]
+2025-08-21T12:47:53.3064967Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2025-08-21T12:47:53.3731614Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [7068 B]
+2025-08-21T12:47:53.3744086Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [19.2 kB]
+2025-08-21T12:47:53.3751549Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-backports/restricted amd64 Components [216 B]
+2025-08-21T12:47:53.3762274Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Components [212 B]
+2025-08-21T12:47:53.3845929Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1083 kB]
+2025-08-21T12:47:53.3929079Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [187 kB]
+2025-08-21T12:47:53.3962983Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [21.6 kB]
+2025-08-21T12:47:53.3972181Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [881 kB]
+2025-08-21T12:47:53.4038636Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [195 kB]
+2025-08-21T12:47:53.4061971Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [52.2 kB]
+2025-08-21T12:47:53.4075459Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1631 kB]
+2025-08-21T12:47:53.4180245Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [361 kB]
+2025-08-21T12:47:53.4215598Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Components [212 B]
+2025-08-21T12:47:53.4223069Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Components [212 B]
+2025-08-21T12:48:10.8303362Z Fetched 10.6 MB in 2s (6920 kB/s)
+2025-08-21T12:48:11.5252131Z Reading package lists...
+2025-08-21T12:48:11.5574170Z Reading package lists...
+2025-08-21T12:48:11.7209414Z Building dependency tree...
+2025-08-21T12:48:11.7216404Z Reading state information...
+2025-08-21T12:48:11.9225640Z The following NEW packages will be installed:
+2025-08-21T12:48:11.9226302Z   postgresql-client
+2025-08-21T12:48:11.9391215Z 0 upgraded, 1 newly installed, 0 to remove and 21 not upgraded.
+2025-08-21T12:48:11.9391791Z Need to get 11.6 kB of archives.
+2025-08-21T12:48:11.9392193Z After this operation, 17.4 kB of additional disk space will be used.
+2025-08-21T12:48:11.9392670Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2025-08-21T12:48:11.9756139Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 postgresql-client all 16+257build1.1 [11.6 kB]
+2025-08-21T12:48:12.2308165Z Fetched 11.6 kB in 0s (248 kB/s)
+2025-08-21T12:48:12.3048401Z Selecting previously unselected package postgresql-client.
+2025-08-21T12:48:12.4768370Z (Reading database ... 
+2025-08-21T12:48:12.4768845Z (Reading database ... 5%
+2025-08-21T12:48:12.4769163Z (Reading database ... 10%
+2025-08-21T12:48:12.4769393Z (Reading database ... 15%
+2025-08-21T12:48:12.4769893Z (Reading database ... 20%
+2025-08-21T12:48:12.4770117Z (Reading database ... 25%
+2025-08-21T12:48:12.4770338Z (Reading database ... 30%
+2025-08-21T12:48:12.4770746Z (Reading database ... 35%
+2025-08-21T12:48:12.4770964Z (Reading database ... 40%
+2025-08-21T12:48:12.4771177Z (Reading database ... 45%
+2025-08-21T12:48:12.4771399Z (Reading database ... 50%
+2025-08-21T12:48:12.8313773Z (Reading database ... 55%
+2025-08-21T12:48:14.4765139Z (Reading database ... 60%
+2025-08-21T12:48:15.1408272Z (Reading database ... 65%
+2025-08-21T12:48:15.5410345Z (Reading database ... 70%
+2025-08-21T12:48:16.2439568Z (Reading database ... 75%
+2025-08-21T12:48:17.6114154Z (Reading database ... 80%
+2025-08-21T12:48:20.1635625Z (Reading database ... 85%
+2025-08-21T12:48:23.3780933Z (Reading database ... 90%
+2025-08-21T12:48:25.4483634Z (Reading database ... 95%
+2025-08-21T12:48:25.4484250Z (Reading database ... 100%
+2025-08-21T12:48:25.4484974Z (Reading database ... 219830 files and directories currently installed.)
+2025-08-21T12:48:25.4531822Z Preparing to unpack .../postgresql-client_16+257build1.1_all.deb ...
+2025-08-21T12:48:25.4554608Z Unpacking postgresql-client (16+257build1.1) ...
+2025-08-21T12:48:25.4916770Z Setting up postgresql-client (16+257build1.1) ...
+2025-08-21T12:48:27.7492345Z 
+2025-08-21T12:48:27.7492963Z Running kernel seems to be up-to-date.
+2025-08-21T12:48:27.7493353Z 
+2025-08-21T12:48:27.7493517Z Restarting services...
+2025-08-21T12:48:27.7564300Z 
+2025-08-21T12:48:27.7564549Z Service restarts being deferred:
+2025-08-21T12:48:27.7566127Z  systemctl restart hosted-compute-agent.service
+2025-08-21T12:48:27.7566523Z 
+2025-08-21T12:48:27.7566706Z No containers need to be restarted.
+2025-08-21T12:48:27.7567007Z 
+2025-08-21T12:48:27.7567168Z No user sessions are running outdated binaries.
+2025-08-21T12:48:27.7567867Z 
+2025-08-21T12:48:27.7568219Z No VM guests are running outdated hypervisor (qemu) binaries on this host.

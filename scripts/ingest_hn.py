@@ -71,12 +71,12 @@ def insert_story(conn, item: dict):
         with conn.transaction():
             cur = conn.execute(
                 """
-                INSERT INTO doc (source, source_uid, url_canon, title_raw, lang, published_at, hash_body, raw)
-                VALUES ('HackerNews', %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO doc (source, source_uid, url_canon, title_raw, author, lang, published_at, hash_body, raw)
+                VALUES ('HackerNews', %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (url_canon) DO UPDATE SET title_raw = EXCLUDED.title_raw
                 RETURNING doc_id
                 """,
-                (source_uid, url_canon, title, lang, published_at, hash_body, json.dumps(raw)),
+                (source_uid, url_canon, title, item.get("by"), lang, published_at, hash_body, json.dumps(raw)),
             )
             r = cur.fetchone()
             if r:
