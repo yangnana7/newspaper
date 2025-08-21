@@ -1,0 +1,16 @@
+[Unit]
+Description=Newshub Web (FastAPI)
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+User=yang_server
+WorkingDirectory=/home/yang_server/newspaper
+Environment=DATABASE_URL=postgresql://postgres:postgres@localhost/newshub
+ExecStart=/home/yang_server/newspaper/.venv/bin/uvicorn web.app:app --host 0.0.0.0 --port 3011
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
