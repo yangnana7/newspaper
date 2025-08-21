@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional
+try:
+    # For Python < 3.12, ensure FastMCP/Pydantic can introspect TypedDict
+    from typing_extensions import TypedDict  # type: ignore
+except Exception:  # pragma: no cover
+    from typing import TypedDict  # type: ignore
 
 from mcp.server.fastmcp import FastMCP
 import psycopg

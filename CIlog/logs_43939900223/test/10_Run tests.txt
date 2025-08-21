@@ -1,0 +1,270 @@
+﻿2025-08-21T13:28:43.1043885Z ##[group]Run # Limit collection to repo tests to avoid duplicate names in docs/ci_pack
+2025-08-21T13:28:43.1044419Z [36;1m# Limit collection to repo tests to avoid duplicate names in docs/ci_pack[0m
+2025-08-21T13:28:43.1044782Z [36;1mPYTHONPATH=. pytest -q tests[0m
+2025-08-21T13:28:43.1085238Z shell: /usr/bin/bash -e {0}
+2025-08-21T13:28:43.1085452Z env:
+2025-08-21T13:28:43.1085861Z   DATABASE_URL: ***localhost:5432/testdb
+2025-08-21T13:28:43.1086104Z   EMBED_SPACE: bge-m3
+2025-08-21T13:28:43.1086298Z   ENABLE_SERVER_EMBEDDING: 0
+2025-08-21T13:28:43.1086569Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:28:43.1087141Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib/pkgconfig
+2025-08-21T13:28:43.1087582Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:28:43.1087916Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:28:43.1088247Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.13/x64
+2025-08-21T13:28:43.1088833Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.13/x64/lib
+2025-08-21T13:28:43.1089154Z ##[endgroup]
+2025-08-21T13:28:58.7953518Z ...FF.                                                                   [100%]
+2025-08-21T13:28:58.7954105Z =================================== FAILURES ===================================
+2025-08-21T13:28:58.7954638Z ___________________________ test_insert_and_doc_head ___________________________
+2025-08-21T13:28:58.7954999Z 
+2025-08-21T13:28:58.7955137Z     def test_insert_and_doc_head():
+2025-08-21T13:28:58.7955496Z >       from mcp_news import server
+2025-08-21T13:28:58.7955765Z 
+2025-08-21T13:28:58.7955893Z tests/test_smoke.py:22: 
+2025-08-21T13:28:58.7956248Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T13:28:58.7956669Z mcp_news/server.py:78: in <module>
+2025-08-21T13:28:58.7957025Z     @mcp.tool()
+2025-08-21T13:28:58.7957301Z      ^^^^^^^^^^
+2025-08-21T13:28:58.7958050Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:421: in decorator
+2025-08-21T13:28:58.7959238Z     self.add_tool(
+2025-08-21T13:28:58.7960061Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:366: in add_tool
+2025-08-21T13:28:58.7960963Z     self._tool_manager.add_tool(
+2025-08-21T13:28:58.7961891Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/tool_manager.py:55: in add_tool
+2025-08-21T13:28:58.7962757Z     tool = Tool.from_function(
+2025-08-21T13:28:58.7963302Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/base.py:71: in from_function
+2025-08-21T13:28:58.7963872Z     func_arg_metadata = func_metadata(
+2025-08-21T13:28:58.7964475Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:271: in func_metadata
+2025-08-21T13:28:58.7965268Z     output_model, output_schema, wrap_output = _try_create_model_and_schema(annotation, func.__name__, output_info)
+2025-08-21T13:28:58.7965730Z                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7966367Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:352: in _try_create_model_and_schema
+2025-08-21T13:28:58.7967053Z     model = _create_wrapped_model(func_name, annotation, field_info)
+2025-08-21T13:28:58.7967364Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7967952Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:436: in _create_wrapped_model
+2025-08-21T13:28:58.7968843Z     return create_model(model_name, result=(annotation, field_info), __base__=BaseModel)
+2025-08-21T13:28:58.7969219Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7969674Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/main.py:1763: in create_model
+2025-08-21T13:28:58.7970454Z     return meta(
+2025-08-21T13:28:58.7970917Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:237: in __new__
+2025-08-21T13:28:58.7971436Z     complete_model_class(
+2025-08-21T13:28:58.7971963Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:597: in complete_model_class
+2025-08-21T13:28:58.7972526Z     schema = gen_schema.generate_schema(cls)
+2025-08-21T13:28:58.7973281Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7974250Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T13:28:58.7975284Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.7975729Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7976550Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1004: in _generate_schema_inner
+2025-08-21T13:28:58.7977136Z     return self._model_schema(obj)
+2025-08-21T13:28:58.7977353Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7977854Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in _model_schema
+2025-08-21T13:28:58.7978485Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T13:28:58.7978995Z     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7979542Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in <dictcomp>
+2025-08-21T13:28:58.7980168Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T13:28:58.7980516Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7981077Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1206: in _generate_md_field_schema
+2025-08-21T13:28:58.7981729Z     common_field = self._common_field_schema(name, field_info, decorators)
+2025-08-21T13:28:58.7982062Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7982613Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1372: in _common_field_schema
+2025-08-21T13:28:58.7983190Z     schema = self._apply_annotations(
+2025-08-21T13:28:58.7983746Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2297: in _apply_annotations
+2025-08-21T13:28:58.7984294Z     schema = get_inner_schema(source_type)
+2025-08-21T13:28:58.7984529Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7985035Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_schema_generation_shared.py:83: in __call__
+2025-08-21T13:28:58.7985574Z     schema = self._handler(source_type)
+2025-08-21T13:28:58.7985800Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7986296Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2279: in inner_handler
+2025-08-21T13:28:58.7986830Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.7987068Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7987608Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T13:28:58.7988163Z     return self.match_type(obj)
+2025-08-21T13:28:58.7988371Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7988997Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1123: in match_type
+2025-08-21T13:28:58.7989596Z     return self._match_generic_type(obj, origin)
+2025-08-21T13:28:58.7990139Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7990674Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1150: in _match_generic_type
+2025-08-21T13:28:58.7991266Z     return self._list_schema(self._get_first_arg_or_any(obj))
+2025-08-21T13:28:58.7991553Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7992069Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:372: in _list_schema
+2025-08-21T13:28:58.7992802Z     return core_schema.list_schema(self.generate_schema(items_type))
+2025-08-21T13:28:58.7993118Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7993658Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T13:28:58.7994198Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.7994437Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7994978Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T13:28:58.7995529Z     return self.match_type(obj)
+2025-08-21T13:28:58.7995728Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7996196Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1091: in match_type
+2025-08-21T13:28:58.7996719Z     return self._typed_dict_schema(obj, None)
+2025-08-21T13:28:58.7996952Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.7997202Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T13:28:58.7997394Z 
+2025-08-21T13:28:58.7997607Z self = <pydantic._internal._generate_schema.GenerateSchema object at 0x7f5b69eec4f0>
+2025-08-21T13:28:58.7998036Z typed_dict_cls = <class 'mcp_news.server.Bundle'>, origin = None
+2025-08-21T13:28:58.7998266Z 
+2025-08-21T13:28:58.7998494Z     def _typed_dict_schema(self, typed_dict_cls: Any, origin: Any) -> core_schema.CoreSchema:
+2025-08-21T13:28:58.7999067Z         """Generate a core schema for a `TypedDict` class.
+2025-08-21T13:28:58.7999323Z     
+2025-08-21T13:28:58.7999639Z         To be able to build a `DecoratorInfos` instance for the `TypedDict` class (which will include
+2025-08-21T13:28:58.8000160Z         validators, serializers, etc.), we need to have access to the original bases of the class
+2025-08-21T13:28:58.8000673Z         (see https://docs.python.org/3/library/types.html#types.get_original_bases).
+2025-08-21T13:28:58.8001223Z         However, the `__orig_bases__` attribute was only added in 3.12 (https://github.com/python/cpython/pull/103698).
+2025-08-21T13:28:58.8001628Z     
+2025-08-21T13:28:58.8001903Z         For this reason, we require Python 3.12 (or using the `typing_extensions` backport).
+2025-08-21T13:28:58.8002251Z         """
+2025-08-21T13:28:58.8002436Z         FieldInfo = import_cached_field_info()
+2025-08-21T13:28:58.8002666Z     
+2025-08-21T13:28:58.8002844Z         with (
+2025-08-21T13:28:58.8003038Z             self.model_type_stack.push(typed_dict_cls),
+2025-08-21T13:28:58.8003337Z             self.defs.get_schema_or_ref(typed_dict_cls) as (
+2025-08-21T13:28:58.8003605Z                 typed_dict_ref,
+2025-08-21T13:28:58.8003811Z                 maybe_schema,
+2025-08-21T13:28:58.8003992Z             ),
+2025-08-21T13:28:58.8004143Z         ):
+2025-08-21T13:28:58.8004307Z             if maybe_schema is not None:
+2025-08-21T13:28:58.8004539Z                 return maybe_schema
+2025-08-21T13:28:58.8004747Z     
+2025-08-21T13:28:58.8004952Z             typevars_map = get_standard_typevars_map(typed_dict_cls)
+2025-08-21T13:28:58.8005240Z             if origin is not None:
+2025-08-21T13:28:58.8005455Z                 typed_dict_cls = origin
+2025-08-21T13:28:58.8005667Z     
+2025-08-21T13:28:58.8005914Z             if not _SUPPORTS_TYPEDDICT and type(typed_dict_cls).__module__ == 'typing':
+2025-08-21T13:28:58.8006394Z >               raise PydanticUserError(
+2025-08-21T13:28:58.8006797Z                     'Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.',
+2025-08-21T13:28:58.8007204Z                     code='typed-dict-version',
+2025-08-21T13:28:58.8007431Z                 )
+2025-08-21T13:28:58.8007887Z E               pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T13:28:58.8008394Z E               
+2025-08-21T13:28:58.8008916Z E               For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T13:28:58.8009346Z 
+2025-08-21T13:28:58.8009727Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1511: PydanticUserError
+2025-08-21T13:28:58.8010339Z ________________________ test_semantic_search_fallback _________________________
+2025-08-21T13:28:58.8010572Z 
+2025-08-21T13:28:58.8010666Z     def test_semantic_search_fallback():
+2025-08-21T13:28:58.8010899Z >       from mcp_news import server
+2025-08-21T13:28:58.8011046Z 
+2025-08-21T13:28:58.8011128Z tests/test_smoke.py:49: 
+2025-08-21T13:28:58.8011355Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T13:28:58.8011625Z mcp_news/server.py:78: in <module>
+2025-08-21T13:28:58.8011831Z     @mcp.tool()
+2025-08-21T13:28:58.8011992Z      ^^^^^^^^^^
+2025-08-21T13:28:58.8012406Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:421: in decorator
+2025-08-21T13:28:58.8012879Z     self.add_tool(
+2025-08-21T13:28:58.8013321Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/server.py:366: in add_tool
+2025-08-21T13:28:58.8013805Z     self._tool_manager.add_tool(
+2025-08-21T13:28:58.8014302Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/tool_manager.py:55: in add_tool
+2025-08-21T13:28:58.8014827Z     tool = Tool.from_function(
+2025-08-21T13:28:58.8015784Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/tools/base.py:71: in from_function
+2025-08-21T13:28:58.8016747Z     func_arg_metadata = func_metadata(
+2025-08-21T13:28:58.8017540Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:271: in func_metadata
+2025-08-21T13:28:58.8018310Z     output_model, output_schema, wrap_output = _try_create_model_and_schema(annotation, func.__name__, output_info)
+2025-08-21T13:28:58.8018911Z                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8019549Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:352: in _try_create_model_and_schema
+2025-08-21T13:28:58.8020240Z     model = _create_wrapped_model(func_name, annotation, field_info)
+2025-08-21T13:28:58.8020558Z             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8021153Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/mcp/server/fastmcp/utilities/func_metadata.py:436: in _create_wrapped_model
+2025-08-21T13:28:58.8021872Z     return create_model(model_name, result=(annotation, field_info), __base__=BaseModel)
+2025-08-21T13:28:58.8022247Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8022708Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/main.py:1763: in create_model
+2025-08-21T13:28:58.8023150Z     return meta(
+2025-08-21T13:28:58.8023605Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:237: in __new__
+2025-08-21T13:28:58.8024129Z     complete_model_class(
+2025-08-21T13:28:58.8024644Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_model_construction.py:597: in complete_model_class
+2025-08-21T13:28:58.8025389Z     schema = gen_schema.generate_schema(cls)
+2025-08-21T13:28:58.8025631Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8026145Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T13:28:58.8026686Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.8026920Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8027460Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1004: in _generate_schema_inner
+2025-08-21T13:28:58.8028142Z     return self._model_schema(obj)
+2025-08-21T13:28:58.8028355Z            ^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8028958Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in _model_schema
+2025-08-21T13:28:58.8029604Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T13:28:58.8029966Z     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8030492Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:837: in <dictcomp>
+2025-08-21T13:28:58.8031099Z     {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+2025-08-21T13:28:58.8031441Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8032004Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1206: in _generate_md_field_schema
+2025-08-21T13:28:58.8032660Z     common_field = self._common_field_schema(name, field_info, decorators)
+2025-08-21T13:28:58.8032984Z                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8033539Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1372: in _common_field_schema
+2025-08-21T13:28:58.8034100Z     schema = self._apply_annotations(
+2025-08-21T13:28:58.8034633Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2297: in _apply_annotations
+2025-08-21T13:28:58.8035188Z     schema = get_inner_schema(source_type)
+2025-08-21T13:28:58.8035410Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8035926Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_schema_generation_shared.py:83: in __call__
+2025-08-21T13:28:58.8036469Z     schema = self._handler(source_type)
+2025-08-21T13:28:58.8036692Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8037199Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:2279: in inner_handler
+2025-08-21T13:28:58.8037735Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.8037975Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8038608Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T13:28:58.8039171Z     return self.match_type(obj)
+2025-08-21T13:28:58.8039378Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8039849Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1123: in match_type
+2025-08-21T13:28:58.8040385Z     return self._match_generic_type(obj, origin)
+2025-08-21T13:28:58.8040631Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8041173Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1150: in _match_generic_type
+2025-08-21T13:28:58.8041769Z     return self._list_schema(self._get_first_arg_or_any(obj))
+2025-08-21T13:28:58.8042059Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8042581Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:372: in _list_schema
+2025-08-21T13:28:58.8043291Z     return core_schema.list_schema(self.generate_schema(items_type))
+2025-08-21T13:28:58.8043615Z                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8044143Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:711: in generate_schema
+2025-08-21T13:28:58.8044689Z     schema = self._generate_schema_inner(obj)
+2025-08-21T13:28:58.8044927Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8045584Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1009: in _generate_schema_inner
+2025-08-21T13:28:58.8046145Z     return self.match_type(obj)
+2025-08-21T13:28:58.8046342Z            ^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8046823Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1091: in match_type
+2025-08-21T13:28:58.8047360Z     return self._typed_dict_schema(obj, None)
+2025-08-21T13:28:58.8047596Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-08-21T13:28:58.8047849Z _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+2025-08-21T13:28:58.8048044Z 
+2025-08-21T13:28:58.8048256Z self = <pydantic._internal._generate_schema.GenerateSchema object at 0x7f5be36518a0>
+2025-08-21T13:28:58.8048838Z typed_dict_cls = <class 'mcp_news.server.Bundle'>, origin = None
+2025-08-21T13:28:58.8049067Z 
+2025-08-21T13:28:58.8049280Z     def _typed_dict_schema(self, typed_dict_cls: Any, origin: Any) -> core_schema.CoreSchema:
+2025-08-21T13:28:58.8049699Z         """Generate a core schema for a `TypedDict` class.
+2025-08-21T13:28:58.8049957Z     
+2025-08-21T13:28:58.8050257Z         To be able to build a `DecoratorInfos` instance for the `TypedDict` class (which will include
+2025-08-21T13:28:58.8050774Z         validators, serializers, etc.), we need to have access to the original bases of the class
+2025-08-21T13:28:58.8051272Z         (see https://docs.python.org/3/library/types.html#types.get_original_bases).
+2025-08-21T13:28:58.8051820Z         However, the `__orig_bases__` attribute was only added in 3.12 (https://github.com/python/cpython/pull/103698).
+2025-08-21T13:28:58.8052230Z     
+2025-08-21T13:28:58.8052500Z         For this reason, we require Python 3.12 (or using the `typing_extensions` backport).
+2025-08-21T13:28:58.8052840Z         """
+2025-08-21T13:28:58.8053017Z         FieldInfo = import_cached_field_info()
+2025-08-21T13:28:58.8053246Z     
+2025-08-21T13:28:58.8053385Z         with (
+2025-08-21T13:28:58.8053585Z             self.model_type_stack.push(typed_dict_cls),
+2025-08-21T13:28:58.8053879Z             self.defs.get_schema_or_ref(typed_dict_cls) as (
+2025-08-21T13:28:58.8054148Z                 typed_dict_ref,
+2025-08-21T13:28:58.8054353Z                 maybe_schema,
+2025-08-21T13:28:58.8054536Z             ),
+2025-08-21T13:28:58.8054688Z         ):
+2025-08-21T13:28:58.8054853Z             if maybe_schema is not None:
+2025-08-21T13:28:58.8055087Z                 return maybe_schema
+2025-08-21T13:28:58.8055285Z     
+2025-08-21T13:28:58.8055495Z             typevars_map = get_standard_typevars_map(typed_dict_cls)
+2025-08-21T13:28:58.8055777Z             if origin is not None:
+2025-08-21T13:28:58.8055994Z                 typed_dict_cls = origin
+2025-08-21T13:28:58.8056198Z     
+2025-08-21T13:28:58.8056451Z             if not _SUPPORTS_TYPEDDICT and type(typed_dict_cls).__module__ == 'typing':
+2025-08-21T13:28:58.8056800Z >               raise PydanticUserError(
+2025-08-21T13:28:58.8057198Z                     'Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.',
+2025-08-21T13:28:58.8057607Z                     code='typed-dict-version',
+2025-08-21T13:28:58.8057825Z                 )
+2025-08-21T13:28:58.8058286Z E               pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T13:28:58.8059041Z E               
+2025-08-21T13:28:59.7305014Z E               For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T13:28:59.7305812Z 
+2025-08-21T13:28:59.7306677Z /opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/pydantic/_internal/_generate_schema.py:1511: PydanticUserError
+2025-08-21T13:28:59.7307942Z =========================== short test summary info ============================
+2025-08-21T13:28:59.7309479Z FAILED tests/test_smoke.py::test_insert_and_doc_head - pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T13:28:59.7310700Z 
+2025-08-21T13:28:59.7311015Z For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T13:28:59.7311969Z FAILED tests/test_smoke.py::test_semantic_search_fallback - pydantic.errors.PydanticUserError: Please use `typing_extensions.TypedDict` instead of `typing.TypedDict` on Python < 3.12.
+2025-08-21T13:28:59.7312746Z 
+2025-08-21T13:28:59.7313011Z For further information visit https://errors.pydantic.dev/2.11/u/typed-dict-version
+2025-08-21T13:28:59.7313582Z 2 failed, 4 passed in 15.12s
+2025-08-21T13:29:00.5550604Z ##[error]Process completed with exit code 1.
