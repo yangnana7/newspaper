@@ -1,0 +1,22 @@
+[
+  {
+    "name": "NHK 総合",
+    "url": "https://www3.nhk.or.jp/rss/news/cat0.xml",
+    "genre_hint": "medtop:04000000"
+  },
+  {
+    "name": "BBC News",
+    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "genre_hint": "medtop:04000000"
+  },
+  {
+    "name": "ITmedia速報",
+    "url": "https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml",
+    "genre_hint": "medtop:04000000"
+  },
+  {
+    "name": "GIGAZINE",
+    "url": "https://gigazine.net/news/rss_2.0/",
+    "genre_hint": "medtop:04000000"
+  }
+]
