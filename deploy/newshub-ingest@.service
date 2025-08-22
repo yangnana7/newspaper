@@ -1,0 +1,16 @@
+[Unit]
+Description=Newshub RSS ingest (%i)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+EnvironmentFile=/etc/newshub.env
+WorkingDirectory=%E{WORKDIR}
+ExecStart=%E{VENV}/bin/python scripts/ingest_rss.py --feeds %E{FEEDS_FILE} --source RSS
+Nice=10
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

@@ -9,8 +9,8 @@
   - RSS: `python scripts/ingest_rss.py --feeds config/feeds.sample.json`
   - HN: `python scripts/ingest_hn.py --kind topstories --limit 50`
   - NewsAPI: `NEWSAPI_KEY=... python scripts/ingest_newsapi.py --mode top --country jp`
-- Embed: `python scripts/embed_chunks.py --space bge-m3`
-- MCP server (stdio): `python -m mcp_news.server`
+- Embed (multilingual default): `python scripts/embed_chunks.py --space e5-multilingual --normalize`
+- MCP server (stdio): `python -m mcp_news.server`  (uses `EMBED_SPACE`/`EMBEDDING_SPACE`, default `e5-multilingual`)
 - Tests: `pytest -q`
 
 ### Web app (HTTP UI)

@@ -1,0 +1,12 @@
+[Unit]
+Description=Newshub RSS ingest timer (%i)
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=600
+Persistent=true
+Unit=newshub-ingest@%i.service
+
+[Install]
+WantedBy=timers.target
+

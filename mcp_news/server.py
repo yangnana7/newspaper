@@ -12,10 +12,11 @@ except Exception:  # pragma: no cover
 from mcp.server.fastmcp import FastMCP
 import psycopg
 from .db import connect
+from search.ranker import rerank_candidates
 
 # Embedding space label used for vector search (must match embed_chunks --space)
 # Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility
-EMBED_SPACE = os.environ.get("EMBED_SPACE") or os.environ.get("EMBEDDING_SPACE") or "bge-m3"
+EMBED_SPACE = os.environ.get("EMBED_SPACE") or os.environ.get("EMBEDDING_SPACE") or "e5-multilingual"
 
 
 class Bundle(TypedDict, total=False):
@@ -102,30 +103,36 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                 from pgvector.psycopg import Vector  # local import to avoid hard dep when unused
                 q_emb = _MODEL.encode([q], normalize_embeddings=True)[0]
                 cond_sql = ""
-                params: List[Any] = [EMBED_SPACE]
+                params: List[Any] = []
                 if since_dt is not None:
                     cond_sql = "AND d.published_at >= %s"
-                    params.append(since_dt)
+                    # will append later after space
+                    pass
                 qv = Vector(list(map(float, q_emb)))
-                params.extend([qv, top_k])
+                # candidate expansion for fusion re-ranking
+                cand = min(200, max(top_k * 3 + 10, top_k))
+                # order: qv(for dist), space, optional since, limit
+                params = [qv, EMBED_SPACE] + ([since_dt] if since_dt is not None else []) + [cand]
 
                 cur = conn.execute(
                     f"""
                     SELECT d.doc_id, d.title_raw, d.published_at,
                            (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-                           d.url_canon
+                           d.url_canon, d.source,
+                           (v.emb <=> %s) AS dist
                     FROM chunk_vec v
                     JOIN chunk c ON c.chunk_id = v.chunk_id
                     JOIN doc d   ON d.doc_id   = c.doc_id
                     WHERE v.embedding_space = %s {cond_sql}
-                    ORDER BY v.emb <=> %s
+                    ORDER BY dist ASC
                     LIMIT %s
                     """,
                     tuple(params),
                 )
                 rows = cur.fetchall()
                 if rows:
-                    return [_row_to_bundle(r) for r in rows]
+                    reranked = rerank_candidates(rows, dist_index=6, published_index=2, source_index=5, limit=top_k)
+                    return [_row_to_bundle(r) for r in reranked]
             except Exception:
                 try:
                     conn.rollback()
