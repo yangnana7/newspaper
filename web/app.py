@@ -13,7 +13,6 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
 app = FastAPI(title="MCP News – Minimal UI")
 # Avoid startup failure when static dir is absent during tests/CI
 app.mount("/static", StaticFiles(directory="web/static", check_dir=False), name="static")
->>>>>>> 6ad22ffa7f4089ea774fe644c9fade098e662fcd
 
 def row_to_dict(r):
     # r: doc_id, title_raw, published_at(UTC), genre_hint, url_canon, source
