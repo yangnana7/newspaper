@@ -14,7 +14,8 @@ import psycopg
 from .db import connect
 
 # Embedding space label used for vector search (must match embed_chunks --space)
-EMBED_SPACE = os.environ.get("EMBED_SPACE", "bge-m3")
+# Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility
+EMBED_SPACE = os.environ.get("EMBED_SPACE") or os.environ.get("EMBEDDING_SPACE") or "bge-m3"
 
 
 class Bundle(TypedDict, total=False):

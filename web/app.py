@@ -11,7 +11,8 @@ JST = zoneinfo.ZoneInfo("Asia/Tokyo")
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
 
 app = FastAPI(title="MCP News – Minimal UI")
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
+# Avoid startup failure when static dir is absent during tests/CI
+app.mount("/static", StaticFiles(directory="web/static", check_dir=False), name="static")
 
 def row_to_dict(r):
     # r: doc_id, title_raw, published_at(UTC), genre_hint, url_canon, source
@@ -66,10 +67,11 @@ def api_search(
 
 # セマンティック検索（cosine距離 <=>）。q は JSON 数値配列（暫定）。
 @app.get("/api/search_sem")
+@app.get("/search_sem")
 def api_search_sem(
     limit: int = Query(20, ge=1, le=200),
     offset: int = Query(0, ge=0),
-    space: str = Query(os.environ.get("EMBED_SPACE", "bge-m3")),
+    space: str = Query(os.environ.get("EMBED_SPACE") or os.environ.get("EMBEDDING_SPACE") or "bge-m3"),
     q: Optional[str] = None,
 ):
     try:
@@ -106,8 +108,22 @@ def api_search_sem(
             rows2 = conn.execute(sql2, (limit, offset)).fetchall()
             return [row_to_dict(r) for r in rows2]
     except Exception:
-        # 失敗時は安全に空配列を返す
-        return []
+        # 失敗時も新着順へフォールバックを試みる
+        try:
+            with psycopg.connect(DATABASE_URL) as conn2:
+                sqlf = """
+                  SELECT d.doc_id, d.title_raw, d.published_at,
+                         (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
+                         d.url_canon, d.source
+                  FROM doc d
+                  ORDER BY d.published_at DESC
+                  LIMIT %s OFFSET %s
+                """
+                rowsf = conn2.execute(sqlf, (limit, offset)).fetchall()
+                return [row_to_dict(r) for r in rowsf]
+        except Exception:
+            # 最後まで失敗した場合は空
+            return []
 
 # ルート：静的HTML
 @app.get("/", response_class=HTMLResponse)
