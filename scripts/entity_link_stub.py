@@ -19,27 +19,48 @@ from typing import Iterable, List, Tuple
 import psycopg
 
 
-def extract_terms(text: str, max_terms: int = 8) -> List[Tuple[str, int, int]]:
-    """Very simple token extractor for a stub implementation.
+def extract_terms(text: str, max_terms: int = 12) -> List[Tuple[str, int, int, str]]:
+    """Token extractor for stub implementation (multilingual-ish).
 
-    - Picks capitalized and alnum words of length >=3
-    - Returns unique tokens with first occurrence span (start, end)
+    Yields (token, start, end, kind) where kind in {"token","surface","hashtag"}.
+    - English-like tokens: [A-Za-z][A-Za-z0-9_-]{2,}
+    - Katakana surfaces: [\u30A0-\u30FF]{2,}
+    - Hashtags: #[A-Za-z0-9_]{2,}
     """
     if not text:
         return []
-    # Find candidates (English-like). Japanese is out-of-scope for this stub.
-    pat = re.compile(r"\b[A-Za-z][A-Za-z0-9_-]{2,}\b")
+    pat_en = re.compile(r"\b[A-Za-z][A-Za-z0-9_-]{2,}\b")
+    pat_kata = re.compile(r"[\u30A0-\u30FF]{2,}")
+    pat_hash = re.compile(r"#[A-Za-z0-9_]{2,}")
     seen = set()
-    out: List[Tuple[str, int, int]] = []
-    for m in pat.finditer(text):
+    out: List[Tuple[str, int, int, str]] = []
+    for m in pat_en.finditer(text):
         tok = m.group(0)
-        key = tok.lower()
+        key = ("en:") + tok.lower()
         if key in seen:
             continue
         seen.add(key)
-        out.append((tok, m.start(), m.end()))
+        out.append((tok, m.start(), m.end(), "token"))
         if len(out) >= max_terms:
-            break
+            return out
+    for m in pat_kata.finditer(text):
+        tok = m.group(0)
+        key = ("ka:") + tok
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "surface"))
+        if len(out) >= max_terms:
+            return out
+    for m in pat_hash.finditer(text):
+        tok = m.group(0)
+        key = ("hx:") + tok.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "hashtag"))
+        if len(out) >= max_terms:
+            return out
     return out
 
 
@@ -79,9 +100,23 @@ def process_chunks(conn: psycopg.Connection, limit: int = 100) -> int:
         if not terms:
             continue
         with conn.transaction():
-            for tok, s, e in terms:
-                ext_id = f"tok:{tok.lower()}"
-                ent_id = upsert_entity(conn, ext_id, kind="token", attrs={"token": tok})
+            for tok, s, e, kind in terms:
+                if kind == "token":
+                    ext = f"tok:{tok.lower()}"
+                    k = "token"
+                    conf = 0.1
+                    ent_kind = "token"
+                elif kind == "surface":
+                    ext = f"surf:{tok}"
+                    k = "surface"
+                    conf = 0.3
+                    ent_kind = "surface"
+                else:  # hashtag
+                    ext = f"surf:{tok.lower()}"
+                    k = "surface"
+                    conf = 0.3
+                    ent_kind = "surface"
+                ent_id = upsert_entity(conn, ext, kind=ent_kind, attrs={k: tok})
                 if ent_id < 0:
                     continue
                 conn.execute(
@@ -90,7 +125,7 @@ def process_chunks(conn: psycopg.Connection, limit: int = 100) -> int:
                     VALUES (%s, %s, int4range(%s, %s), %s)
                     ON CONFLICT DO NOTHING
                     """,
-                    (cid, ent_id, int(s), int(e), 0.1),
+                    (cid, ent_id, int(s), int(e), conf),
                 )
                 inserted += 1
     return inserted

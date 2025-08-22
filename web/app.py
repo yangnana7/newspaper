@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Query
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-import os, json, psycopg
+import os, json, math, psycopg
 from datetime import timezone
 import zoneinfo
-from typing import Optional
+from typing import Optional, Dict
 from pgvector.psycopg import Vector, register_vector
 
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
@@ -19,6 +19,43 @@ def row_to_dict(r):
     ts = r[2].astimezone(JST).isoformat(timespec="seconds")
     return {"doc_id": r[0], "title": r[1], "published_at": ts,
             "genre_hint": r[3], "url": r[4], "source": r[5]}
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, str(default)))
+    except Exception:
+        return default
+
+
+def _load_source_trust() -> Dict[str, float]:
+    raw = os.environ.get("SOURCE_TRUST_JSON", "")
+    if not raw:
+        return {}
+    try:
+        m = json.loads(raw)
+        if isinstance(m, dict):
+            out: Dict[str, float] = {}
+            for k, v in m.items():
+                try:
+                    out[str(k)] = float(v)
+                except Exception:
+                    continue
+            return out
+    except Exception:
+        pass
+    return {}
+
+
+def _recency_decay(published_at, halflife_h: float) -> float:
+    try:
+        dt = published_at.astimezone(timezone.utc)
+        age_h = max(0.0, (datetime.now(timezone.utc) - dt).total_seconds() / 3600.0)
+        if halflife_h <= 0:
+            return 0.0
+        return 0.5 ** (age_h / halflife_h)
+    except Exception:
+        return 0.0
 
 @app.get("/api/latest")
 def api_latest(limit: int = Query(50, ge=1, le=200)):
@@ -83,19 +120,44 @@ def api_search_sem(
                 except Exception:
                     vec = None
                 if isinstance(vec, list) and all(isinstance(x, (int, float)) for x in vec):
+                    # candidate size for fusion re-ranking
+                    cand = min(200, max(limit * 3 + 10, limit))
                     sql = """
                       SELECT d.doc_id, d.title_raw, d.published_at,
                              (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-                             d.url_canon, d.source
+                             d.url_canon, d.source,
+                             (v.emb <=> %s) AS dist
                       FROM chunk_vec v
                       JOIN chunk c USING(chunk_id)
                       JOIN doc d USING(doc_id)
                       WHERE v.embedding_space = %s
-                      ORDER BY v.emb <=> %s
+                      ORDER BY dist ASC
                       LIMIT %s OFFSET %s
                     """
-                    rows = conn.execute(sql, (space, Vector(vec), limit, offset)).fetchall()
-                    return [row_to_dict(r) for r in rows]
+                    rows = conn.execute(sql, (Vector(vec), space, cand, offset)).fetchall()
+                    # fusion params
+                    a = _env_float("RANK_ALPHA", 0.7)
+                    b = _env_float("RANK_BETA", 0.2)
+                    g = _env_float("RANK_GAMMA", 0.1)
+                    ssum = a + b + g
+                    if ssum <= 0:
+                        a, b, g = 1.0, 0.0, 0.0
+                        ssum = 1.0
+                    a, b, g = a / ssum, b / ssum, g / ssum
+                    hl = _env_float("RECENCY_HALFLIFE_HOURS", 24.0)
+                    trust_map = _load_source_trust()
+                    trust_default = _env_float("SOURCE_TRUST_DEFAULT", 1.0)
+
+                    scored = []
+                    for r in rows:
+                        dist = float(r[6]) if r[6] is not None else 1.0
+                        cos_sim = 1.0 - max(0.0, min(1.0, dist))
+                        rec = _recency_decay(r[2], hl)
+                        trust = float(trust_map.get(r[5], trust_default))
+                        score = a * cos_sim + b * rec + g * trust
+                        scored.append((score, r))
+                    scored.sort(key=lambda x: x[0], reverse=True)
+                    return [row_to_dict(sr[1]) for sr in scored[:limit]]
             # フォールバック：最新順
             sql2 = """
               SELECT d.doc_id, d.title_raw, d.published_at,
