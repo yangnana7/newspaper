@@ -13,6 +13,18 @@
 - MCP server (stdio): `python -m mcp_news.server`
 - Tests: `pytest -q`
 
+### Web app (HTTP UI)
+
+- Dependencies are in `requirements.txt` (includes `fastapi` and `uvicorn`).
+- Run locally (bind to localhost only):
+  - `mkdir -p web/static`
+  - `uvicorn web.app:app --host 127.0.0.1 --port 3011`
+- Endpoints:
+  - `GET /api/latest?limit=50`
+  - `GET /api/search?q=keyword&limit=50&offset=0`
+  - `GET /api/search_sem?limit=20&offset=0&space=bge-m3` (q omitted → recency fallback)
+  - alias: `GET /search_sem` (same as above)
+
 ## Notes (2025-08-21)
 
 - Schema adds helpful indexes: `idx_doc_url` (doc.url_canon), `idx_hint_key` (hint.key)
