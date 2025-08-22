@@ -1,113 +1,51 @@
-=== Ubuntu Work Report ===
+# 検証レポート（Ubuntu サーバー側）
 
-## 1. Schema and Index Application Log
+本レポートは `ubuntu_work.md` の手順に沿って実施した結果を記録します。固定条件: DB=newshub、127.0.0.1:3011、vector(768)、cosine、UTC/JST。
 
-### Schema v2.sql - Already Applied
- to_regclass | to_regclass | to_regclass 
--------------+-------------+-------------
- doc         | chunk       | chunk_vec
-(1 row)
+## 1. 環境情報
+- OS: (例) Ubuntu 24.04 LTS
+- Python: (例) 3.11.x
+- PostgreSQL: (例) 16 + pgvector/pg_trgm
+- リポジトリ commit: (hash)
+- 環境変数:
+  - `DATABASE_URL=`
+  - `APP_BIND_HOST=127.0.0.1`
+  - `APP_BIND_PORT=3011`
+  - `EMBED_SPACE/EMBEDDING_SPACE=bge-m3`
+  - (任意) `RANK_ALPHA/BETA/GAMMA`, `RECENCY_HALFLIFE_HOURS`, `SOURCE_TRUST_JSON`
 
+## 2. スキーマ/インデックス適用ログ
+- `psql -f db/schema_v2.sql` 実行ログ（抜粋）
+- `psql -f db/indexes_core.sql` 実行ログ（抜粋）
+- インデックス一覧: `SELECT indexname FROM pg_indexes WHERE tablename IN ('doc','hint','chunk_vec')` の結果
 
-### Indexes Core - Already Applied
-             indexname              
-------------------------------------
- chunk_vec_pkey
- doc_pkey
- doc_url_canon_key
- hint_pkey
- idx_chunk_vec_hnsw_bge_m3
- idx_chunk_vec_hnsw_bge_m3_cos
- idx_doc_published
- idx_doc_published_at_desc
- idx_doc_source
- idx_doc_title_raw_trgm
- idx_doc_url
- idx_doc_urlcanon_published_at_desc
- idx_hint_genre
- idx_hint_key
-(14 rows)
+## 3. データ投入/埋め込み
+- `doc/chunk/hint` 挿入件数: (数値)
+- 埋め込み実行ログ: `scripts/embed_chunks.py --space bge-m3` の出力（抜粋）
+- `SELECT COUNT(*) FROM chunk_vec WHERE embedding_space='bge-m3';` の結果
 
+## 4. API 疎通（127.0.0.1:3011）
+- `/api/latest?limit=5` のレスポンス例（整形JSON）
+- `/api/search?q=Hello&limit=5` のレスポンス例
+- `/api/search_sem?limit=3`（qなしフォールバック）のレスポンス例
+- `/api/search_sem?limit=5&space=bge-m3&q=[…]` のレスポンス例
 
-## 2. API Response Examples
+## 5. ランク融合（任意設定の確認）
+- 使用した設定: `RANK_ALPHA/BETA/GAMMA`、`RECENCY_HALFLIFE_HOURS`、`SOURCE_TRUST_JSON`
+- 観察: 類似度が近い記事で、半減期を短くした場合に新着が上位化するか
+- 観察: `SOURCE_TRUST_JSON` による同等記事の並び順の変化
 
-### /api/latest Response:
-[
-  {
-    "doc_id": 121,
-    "title": "Hello World",
-    "published_at": "2025-08-22T12:36:06+09:00",
-    "genre_hint": "news",
-    "url": "https://example.com/1",
-    "source": "test://local"
-  },
-  {
-    "doc_id": 37,
-    "title": "Rockets beat Invincibles to keep slim hopes alive",
-    "published_at": "2025-08-22T01:34:07+09:00",
-    "genre_hint": "medtop:04000000",
-    "url": "https://www.bbc.com/sport/cricket/articles/c4gl8pyjvdxo?at_medium=RSS&at_campaign=rss",
-    "source": "BBC News"
-  }
-]
+## 6. パフォーマンス・実行計画
+- `EXPLAIN ANALYZE`（ILIKE＋trgm、/api/latest、/api/search_sem 先頭候補SQL）の抜粋
+- 応答時間の目安（ms）: latest/search/search_sem（q無し・q有り）
 
-### /api/search Response:
-[
-  {
-    "doc_id": 121,
-    "title": "Hello World",
-    "published_at": "2025-08-22T12:36:06+09:00",
-    "genre_hint": "news",
-    "url": "https://example.com/1",
-    "source": "test://local"
-  }
-]
+## 7. 既知の注意点/課題
+- モデルDLやネットワーク制約
+- ベクトルが未作成時の空配列挙動（q指定時）
+- 近似HNSWの構築時間・メモリ
 
-### /api/search_sem Response (no query - fallback):
-[
-  {
-    "doc_id": 121,
-    "title": "Hello World",
-    "published_at": "2025-08-22T12:36:06+09:00",
-    "genre_hint": "news",
-    "url": "https://example.com/1",
-    "source": "test://local"
-  },
-  {
-    "doc_id": 37,
-    "title": "Rockets beat Invincibles to keep slim hopes alive",
-    "published_at": "2025-08-22T01:34:07+09:00",
-    "genre_hint": "medtop:04000000",
-    "url": "https://www.bbc.com/sport/cricket/articles/c4gl8pyjvdxo?at_medium=RSS&at_campaign=rss",
-    "source": "BBC News"
-  }
-]
+## 8. 結論
+- 目的の機能が動作しているか（Yes/No）
+- 主要エンドポイント疎通（latest/search/search_sem）
+- 追加改善案
 
-## 3. Database Statistics
-
-### Document Count:
- total_docs 
-------------
-        121
-(1 row)
-
-
-### Embedding Status:
- embedding_space | vector_count 
------------------+--------------
- bge-m3          |            1
-(1 row)
-
-
-## 4. System Status
-
-### HTTP Application Status:
-- Server running on 127.0.0.1:3011 ✓
-- Process ID: 41431
-41453
-48207
-
-### PostgreSQL Status:
-- PostgreSQL service: active
-- Database: newshub ✓
-- Extensions: vector, pg_trgm ✓
