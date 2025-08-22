@@ -60,6 +60,22 @@ List of installed extensions
 
 **注記**: 0823作業指示書タスクBで要求されている `idx_doc_url` と `idx_hint_key` インデックスは既に適用済み。
 
+### スキーマ適用ログ（追記）
+以下の実行結果（標準出力）を貼付ください。
+
+```bash
+psql "$DATABASE_URL" -f db/schema_v2.sql
+# 例）CREATE TABLE/INDEX/DO $$ ... OK（エラー無し）
+```
+
+### インデックス適用ログ（追記）
+以下の実行結果（標準出力）を貼付ください。
+
+```bash
+psql "$DATABASE_URL" -f db/indexes_core.sql
+# 例）CREATE INDEX IF NOT EXISTS ... OK（エラー無し）
+```
+
 ## 3. データ投入/埋め込み
 
 ### データ件数確認
@@ -87,6 +103,14 @@ List of installed extensions
 ### HTTPアプリケーション起動確認
 ```
 LISTEN 0      2048       127.0.0.1:3011       0.0.0.0:*    users:(("uvicorn",pid=41453,fd=6))
+```
+
+#### 起動ログ（journalctl）抜粋（追記）
+起動直後のログ先頭数行を貼付ください。
+
+```bash
+journalctl -u newshub-api@${USER}.service -n 10 --no-pager
+# 例）Uvicorn running on http://127.0.0.1:3011 （Press CTRL+C to quit）
 ```
 
 ### API レスポンス例
@@ -169,6 +193,64 @@ LISTEN 0      2048       127.0.0.1:3011       0.0.0.0:*    users:(("uvicorn",pid
 - ランク融合機能は実装されており、環境変数による設定変更が可能
 - ベクトル検索（q指定）時には埋め込みベクトルの充実が必要
 - フォールバック機能（q無し）は新着順で正常動作
+
+#### ケースA 実出力（追記）
+埋め込み生成後の出力（上位5件）を貼付してください。
+
+```bash
+# 事前に埋め込みを増やす
+python scripts/embed_chunks.py --space bge-m3 --batch 64
+psql "$DATABASE_URL" -c "SELECT COUNT(*) FROM chunk_vec WHERE embedding_space='bge-m3';"
+
+# 既定（RECENCY_HALFLIFE_HOURS=24 など）
+VEC=$(python - <<'PY'
+import json; from sentence_transformers import SentenceTransformer
+m=SentenceTransformer('intfloat/multilingual-e5-base')
+print(json.dumps(m.encode(['最新のAIニュース'], normalize_embeddings=True)[0].tolist()))
+PY
+)
+curl -s --get --data-urlencode "q=$VEC" \
+  "http://127.0.0.1:3011/api/search_sem?limit=5&space=bge-m3"
+```
+
+```json
+[
+  { "doc_id": ..., "title": "...", "source": "...", "published_at": "..." },
+  { "doc_id": ..., "title": "...", "source": "...", "published_at": "" }
+]
+```
+
+#### ケースB 実出力（追記: 新着重視）
+
+```bash
+export RECENCY_HALFLIFE_HOURS=1
+curl -s --get --data-urlencode "q=$VEC" \
+  "http://127.0.0.1:3011/api/search_sem?limit=5&space=bge-m3"
+```
+
+```json
+[
+  { "doc_id": ..., "title": "...", "source": "...", "published_at": "..." }
+]
+```
+
+所感: ケースA→Bで上昇したdoc_id（例: ...）を記載。
+
+#### ケースC 実出力（追記: ソース信頼度）
+
+```bash
+export SOURCE_TRUST_JSON='{"test://local":1.2}'
+curl -s --get --data-urlencode "q=$VEC" \
+  "http://127.0.0.1:3011/api/search_sem?limit=5&space=bge-m3"
+```
+
+```json
+[
+  { "doc_id": ..., "title": "...", "source": "test://local", "published_at": "..." }
+]
+```
+
+所感: `test://local` を含む記事の順位変化を一言で記載。
 
 ## 6. パフォーマンス・実行計画
 
