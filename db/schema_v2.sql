@@ -57,6 +57,11 @@ CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_bge_m3_cos
   ON chunk_vec USING hnsw (emb vector_cosine_ops)
   WHERE embedding_space='bge-m3';
 
+-- e5-multilingual (cosine)
+CREATE INDEX IF NOT EXISTS idx_chunk_vec_hnsw_e5_cos
+  ON chunk_vec USING hnsw (emb vector_cosine_ops)
+  WHERE embedding_space='e5-multilingual';
+
 -- （テーブル定義の後段で作成）
 
 -- 4. Entities（言語非依存のアンカー）

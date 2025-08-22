@@ -37,6 +37,7 @@ def main():
     ap = argparse.ArgumentParser(description="Embed chunks into chunk_vec (pgvector)")
     ap.add_argument("--space", required=True, help="embedding_space label (e.g., bge-m3/e5-multilingual)")
     ap.add_argument("--batch", type=int, default=64)
+    ap.add_argument("--normalize", action="store_true", default=True, help="normalize embeddings (cosine) [required]")
     args = ap.parse_args()
 
     dsn = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
@@ -52,7 +53,7 @@ def main():
                 break
             ids = [r[0] for r in rows]
             texts = [r[1] for r in rows]
-            embs = model.encode(texts, normalize_embeddings=True)
+            embs = model.encode(texts, normalize_embeddings=bool(args.normalize))
             dim = len(embs[0]) if len(embs) else 0
             with conn.transaction():
                 for cid, vec in zip(ids, embs):
@@ -69,4 +70,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

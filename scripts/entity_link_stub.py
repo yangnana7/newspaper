@@ -32,6 +32,10 @@ def extract_terms(text: str, max_terms: int = 12) -> List[Tuple[str, int, int, s
     pat_en = re.compile(r"\b[A-Za-z][A-Za-z0-9_-]{2,}\b")
     pat_kata = re.compile(r"[\u30A0-\u30FF]{2,}")
     pat_hash = re.compile(r"#[A-Za-z0-9_]{2,}")
+    pat_ko = re.compile(r"[\uAC00-\uD7AF]{2,}")  # Hangul syllables
+    pat_ru = re.compile(r"[\u0400-\u04FF\u0500-\u052F]{2,}")  # Cyrillic
+    pat_zh = re.compile(r"[\u4E00-\u9FFF]{2,5}")  # CJK Unified Ideographs, short surface
+    pat_ar = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]{2,}")  # Arabic ranges
     seen = set()
     out: List[Tuple[str, int, int, str]] = []
     for m in pat_en.finditer(text):
@@ -46,6 +50,42 @@ def extract_terms(text: str, max_terms: int = 12) -> List[Tuple[str, int, int, s
     for m in pat_kata.finditer(text):
         tok = m.group(0)
         key = ("ka:") + tok
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "surface"))
+        if len(out) >= max_terms:
+            return out
+    for m in pat_ko.finditer(text):
+        tok = m.group(0)
+        key = ("ko:") + tok
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "surface"))
+        if len(out) >= max_terms:
+            return out
+    for m in pat_ru.finditer(text):
+        tok = m.group(0)
+        key = ("ru:") + tok
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "surface"))
+        if len(out) >= max_terms:
+            return out
+    for m in pat_zh.finditer(text):
+        tok = m.group(0)
+        key = ("zh:") + tok
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((tok, m.start(), m.end(), "surface"))
+        if len(out) >= max_terms:
+            return out
+    for m in pat_ar.finditer(text):
+        tok = m.group(0)
+        key = ("ar:") + tok
         if key in seen:
             continue
         seen.add(key)

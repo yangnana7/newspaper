@@ -70,7 +70,8 @@ def main():
             url = feed["url"]
             name = feed.get("name") or args.source
             print(f"[+] Fetch: {name} :: {url}")
-            fp = feedparser.parse(url)
+            agent = os.environ.get("USER_AGENT", "newspaper-bot/0.1 (+https://example.invalid/newspaper)")
+            fp = feedparser.parse(url, agent=agent)
             for e in fp.entries:
                 title = (e.get("title") or "").strip()
                 link = e.get("link") or ""
