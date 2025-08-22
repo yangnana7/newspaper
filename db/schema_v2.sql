@@ -118,3 +118,17 @@ CREATE INDEX IF NOT EXISTS idx_hint_key ON hint (key);
 DO $$ BEGIN
   ALTER TABLE doc ADD COLUMN IF NOT EXISTS author TEXT;
 EXCEPTION WHEN duplicate_column THEN NULL; END $$;
+
+-- ---- Optional operational indexes (safe if applied twice) ----
+DO $$
+BEGIN
+  -- create extension if not exists
+  PERFORM 1 FROM pg_extension WHERE extname='pg_trgm';
+  IF NOT FOUND THEN
+    EXECUTE 'CREATE EXTENSION pg_trgm';
+  END IF;
+END$$;
+
+CREATE INDEX IF NOT EXISTS idx_doc_published_at_desc ON doc (published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_doc_source ON doc (source);
+CREATE INDEX IF NOT EXISTS idx_doc_urlcanon_published_at_desc ON doc (url_canon, published_at DESC);
