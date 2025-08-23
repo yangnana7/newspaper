@@ -8,21 +8,16 @@ from typing import Optional
 from pgvector.psycopg import Vector, register_vector
 from search.ranker import rerank_candidates
 
-# Prometheus metrics
-try:
-    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
-    PROMETHEUS_AVAILABLE = True
-    
-    # Define metrics
-    items_ingested_total = Counter('items_ingested_total', 'Total number of items ingested')
-    embeddings_built_total = Counter('embeddings_built_total', 'Total number of embeddings built')
-    ingest_duration_seconds = Histogram('ingest_duration_seconds', 'Time spent ingesting items')
-    embed_duration_seconds = Histogram('embed_duration_seconds', 'Time spent building embeddings')
-except ImportError:
-    PROMETHEUS_AVAILABLE = False
+# Import common metrics module
+from mcp_news.metrics import (
+    get_metrics_content, record_ingest_item, record_embedding_built,
+    time_ingest_operation, time_embed_operation,
+    time_ingest_operation_async, time_embed_operation_async,
+    CONTENT_TYPE_LATEST
+)
 
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
 
 app = FastAPI(title="MCP News – Minimal UI")
 # Avoid startup failure when static dir is absent during tests/CI
@@ -159,45 +154,8 @@ def api_search_sem(
 @app.get("/metrics")
 def metrics():
     """Return Prometheus metrics in text format."""
-    if not PROMETHEUS_AVAILABLE:
-        return PlainTextResponse("# Prometheus client not available\n", media_type="text/plain")
-    
-    return PlainTextResponse(generate_latest().decode('utf-8'), media_type=CONTENT_TYPE_LATEST)
-
-
-# Helper functions for metrics (can be used by ingestion scripts)
-def record_ingest_item():
-    """Record that an item was ingested."""
-    if PROMETHEUS_AVAILABLE:
-        items_ingested_total.inc()
-
-
-def record_embedding_built():
-    """Record that an embedding was built."""
-    if PROMETHEUS_AVAILABLE:
-        embeddings_built_total.inc()
-
-
-def time_ingest_operation(func):
-    """Decorator to time ingest operations."""
-    if not PROMETHEUS_AVAILABLE:
-        return func
-    
-    def wrapper(*args, **kwargs):
-        with ingest_duration_seconds.time():
-            return func(*args, **kwargs)
-    return wrapper
-
-
-def time_embed_operation(func):
-    """Decorator to time embedding operations.""" 
-    if not PROMETHEUS_AVAILABLE:
-        return func
-    
-    def wrapper(*args, **kwargs):
-        with embed_duration_seconds.time():
-            return func(*args, **kwargs)
-    return wrapper
+    content = get_metrics_content()
+    return PlainTextResponse(content, media_type=CONTENT_TYPE_LATEST)
 
 
 # ルート：静的HTML

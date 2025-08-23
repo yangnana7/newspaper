@@ -15,18 +15,8 @@ import psycopg
 from .db import connect
 from search.ranker import rerank_candidates
 
-# Prometheus metrics
-try:
-    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
-    PROMETHEUS_AVAILABLE = True
-    
-    # Define metrics
-    items_ingested_total = Counter('items_ingested_total', 'Total number of items ingested')
-    embeddings_built_total = Counter('embeddings_built_total', 'Total number of embeddings built')
-    ingest_duration_seconds = Histogram('ingest_duration_seconds', 'Time spent ingesting items')
-    embed_duration_seconds = Histogram('embed_duration_seconds', 'Time spent building embeddings')
-except ImportError:
-    PROMETHEUS_AVAILABLE = False
+# Import common metrics module
+from .metrics import get_metrics_content
 
 # Embedding space label used for vector search (must match embed_chunks --space)
 # Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility
@@ -246,45 +236,7 @@ def event_timeline(
 @mcp.tool()
 def get_metrics() -> str:
     """Return Prometheus metrics in text format."""
-    if not PROMETHEUS_AVAILABLE:
-        return "# Prometheus client not available\n"
-    
-    return generate_latest().decode('utf-8')
-
-
-# Helper functions for metrics (can be used by ingestion scripts)
-def record_ingest_item():
-    """Record that an item was ingested."""
-    if PROMETHEUS_AVAILABLE:
-        items_ingested_total.inc()
-
-
-def record_embedding_built():
-    """Record that an embedding was built."""
-    if PROMETHEUS_AVAILABLE:
-        embeddings_built_total.inc()
-
-
-def time_ingest_operation(func):
-    """Decorator to time ingest operations."""
-    if not PROMETHEUS_AVAILABLE:
-        return func
-    
-    def wrapper(*args, **kwargs):
-        with ingest_duration_seconds.time():
-            return func(*args, **kwargs)
-    return wrapper
-
-
-def time_embed_operation(func):
-    """Decorator to time embedding operations.""" 
-    if not PROMETHEUS_AVAILABLE:
-        return func
-    
-    def wrapper(*args, **kwargs):
-        with embed_duration_seconds.time():
-            return func(*args, **kwargs)
-    return wrapper
+    return get_metrics_content()
 
 
 if __name__ == "__main__":
