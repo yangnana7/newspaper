@@ -67,6 +67,17 @@ def api_search(
         rows = conn.execute(sql, tuple(params)).fetchall()
     return [row_to_dict(r) for r in rows]
 
+# 基本検索エンドポイント（/searchはapi/searchと同一動作）
+@app.get("/search")
+def search(
+    q: str,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    source: Optional[str] = None,
+    since_days: Optional[int] = Query(None, ge=0),
+):
+    return api_search(q=q, limit=limit, offset=offset, source=source, since_days=since_days)
+
 # セマンティック検索（cosine距離 <=>）。q は JSON 数値配列（暫定）。
 @app.get("/api/search_sem")
 @app.get("/search_sem")
