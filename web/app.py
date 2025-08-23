@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 import os, json, psycopg
 from datetime import timezone
@@ -7,6 +7,19 @@ import zoneinfo
 from typing import Optional
 from pgvector.psycopg import Vector, register_vector
 from search.ranker import rerank_candidates
+
+# Prometheus metrics
+try:
+    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+    PROMETHEUS_AVAILABLE = True
+    
+    # Define metrics
+    items_ingested_total = Counter('items_ingested_total', 'Total number of items ingested')
+    embeddings_built_total = Counter('embeddings_built_total', 'Total number of embeddings built')
+    ingest_duration_seconds = Histogram('ingest_duration_seconds', 'Time spent ingesting items')
+    embed_duration_seconds = Histogram('embed_duration_seconds', 'Time spent building embeddings')
+except ImportError:
+    PROMETHEUS_AVAILABLE = False
 
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
@@ -142,8 +155,59 @@ def api_search_sem(
             # 最後まで失敗した場合は空
             return []
 
+# Prometheus metrics endpoint
+@app.get("/metrics")
+def metrics():
+    """Return Prometheus metrics in text format."""
+    if not PROMETHEUS_AVAILABLE:
+        return PlainTextResponse("# Prometheus client not available\n", media_type="text/plain")
+    
+    return PlainTextResponse(generate_latest().decode('utf-8'), media_type=CONTENT_TYPE_LATEST)
+
+
+# Helper functions for metrics (can be used by ingestion scripts)
+def record_ingest_item():
+    """Record that an item was ingested."""
+    if PROMETHEUS_AVAILABLE:
+        items_ingested_total.inc()
+
+
+def record_embedding_built():
+    """Record that an embedding was built."""
+    if PROMETHEUS_AVAILABLE:
+        embeddings_built_total.inc()
+
+
+def time_ingest_operation(func):
+    """Decorator to time ingest operations."""
+    if not PROMETHEUS_AVAILABLE:
+        return func
+    
+    def wrapper(*args, **kwargs):
+        with ingest_duration_seconds.time():
+            return func(*args, **kwargs)
+    return wrapper
+
+
+def time_embed_operation(func):
+    """Decorator to time embedding operations.""" 
+    if not PROMETHEUS_AVAILABLE:
+        return func
+    
+    def wrapper(*args, **kwargs):
+        with embed_duration_seconds.time():
+            return func(*args, **kwargs)
+    return wrapper
+
+
 # ルート：静的HTML
 @app.get("/", response_class=HTMLResponse)
 def index():
+    # Check if UI is enabled
+    ui_enabled = os.environ.get("UI_ENABLED", "0").strip().lower()
+    if ui_enabled not in ("1", "true", "yes", "on"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="UI is disabled. Set UI_ENABLED=1 to enable.")
+    
     with open("web/templates/index.html", "r", encoding="utf-8") as f:
         return f.read()
