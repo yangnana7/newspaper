@@ -122,7 +122,7 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                     f"""
                     SELECT d.doc_id, d.title_raw, d.published_at,
                            (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-                           d.url_canon, d.source,
+                           d.url_canon, d.source, d.lang,
                            (v.emb <=> %s) AS dist
                     FROM chunk_vec v
                     JOIN chunk c ON c.chunk_id = v.chunk_id
@@ -135,7 +135,14 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                 )
                 rows = cur.fetchall()
                 if rows:
-                    reranked = rerank_candidates(rows, dist_index=6, published_index=2, source_index=5, limit=top_k)
+                    reranked = rerank_candidates(
+                        rows,
+                        dist_index=7,
+                        published_index=2,
+                        source_index=5,
+                        language_index=6,
+                        limit=top_k,
+                    )
                     return [_row_to_bundle(r) for r in reranked]
             except Exception:
                 try:
