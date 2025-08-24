@@ -4,6 +4,7 @@ Avoids duplicate metric registrations between web and MCP server modules.
 """
 import asyncio
 import functools
+import time
 from typing import Any, Callable, TypeVar, Union
 
 # Prometheus metrics
@@ -80,14 +81,11 @@ def time_ingest_operation_async(func: F) -> F:
     
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        start_time = ingest_duration_seconds._timer()
+        t0 = time.perf_counter()
         try:
-            result = await func(*args, **kwargs)
-            ingest_duration_seconds.observe(ingest_duration_seconds._timer() - start_time)
-            return result
-        except Exception:
-            ingest_duration_seconds.observe(ingest_duration_seconds._timer() - start_time)
-            raise
+            return await func(*args, **kwargs)
+        finally:
+            ingest_duration_seconds.observe(time.perf_counter() - t0)
     return wrapper
 
 
@@ -98,12 +96,9 @@ def time_embed_operation_async(func: F) -> F:
     
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
-        start_time = embed_duration_seconds._timer()
+        t0 = time.perf_counter()
         try:
-            result = await func(*args, **kwargs)
-            embed_duration_seconds.observe(embed_duration_seconds._timer() - start_time)
-            return result
-        except Exception:
-            embed_duration_seconds.observe(embed_duration_seconds._timer() - start_time)
-            raise
+            return await func(*args, **kwargs)
+        finally:
+            embed_duration_seconds.observe(time.perf_counter() - t0)
     return wrapper

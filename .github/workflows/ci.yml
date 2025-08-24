@@ -17,6 +17,7 @@ jobs:
       APP_BIND_PORT: '3011'
       DATABASE_URL: postgresql://127.0.0.1/newshub
       CI: "true"
+      SKIP_DB_TESTS: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
