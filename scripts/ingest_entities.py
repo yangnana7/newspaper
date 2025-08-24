@@ -31,11 +31,19 @@ def ingest(limit: int = 1000) -> int:
             ents: List[str] = extract_entities(text or "")
             # Placeholder: simply record entities into entity table if absent
             for surf in ents:
-                e = conn.execute(
-                    "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                # Try find existing by name
+                row = conn.execute(
+                    "SELECT ent_id FROM entity WHERE attrs->>'name' = %s",
                     (surf,),
                 ).fetchone()
-                ent_id = e[0]
+                if row:
+                    ent_id = row[0]
+                else:
+                    e = conn.execute(
+                        "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                        (surf,),
+                    ).fetchone()
+                    ent_id = e[0]
                 conn.execute(
                     "INSERT INTO mention (chunk_id, ent_id, span, conf) VALUES (%s, %s, NULL, 1.0) ON CONFLICT DO NOTHING",
                     (cid, ent_id),
@@ -47,4 +55,3 @@ def ingest(limit: int = 1000) -> int:
 if __name__ == "__main__":
     n = ingest()
     print(f"ingested_entities={n}")
-

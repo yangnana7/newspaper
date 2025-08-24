@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 import psycopg
 
 from .event_extract import extract_events
+from .entity_link import extract_entities
 
 
 def _connect():
@@ -35,6 +36,26 @@ def ingest(limit: int = 1000) -> int:
                     "INSERT INTO evidence (event_id, doc_id, chunk_id, weight) SELECT %s, d.doc_id, %s, 1.0 FROM chunk c JOIN doc d USING(doc_id) WHERE c.chunk_id=%s",
                     (event_id, cid, cid),
                 )
+                # participants
+                for name in (ev.get("participants") or []):
+                    if not name:
+                        continue
+                    er = conn.execute(
+                        "SELECT ent_id FROM entity WHERE attrs->>'name'=%s",
+                        (name,),
+                    ).fetchone()
+                    if er:
+                        ent_id = er[0]
+                    else:
+                        er = conn.execute(
+                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                            (name,),
+                        ).fetchone()
+                        ent_id = er[0]
+                    conn.execute(
+                        "INSERT INTO event_participant (event_id, role, ent_id) VALUES (%s, NULL, %s) ON CONFLICT DO NOTHING",
+                        (event_id, ent_id),
+                    )
                 count += 1
     return count
 
@@ -42,4 +63,3 @@ def ingest(limit: int = 1000) -> int:
 if __name__ == "__main__":
     n = ingest()
     print(f"ingested_events={n}")
-

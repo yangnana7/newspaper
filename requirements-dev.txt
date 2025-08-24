@@ -4,4 +4,5 @@ prometheus_client>=0.20
 httpx>=0.27
 fastapi>=0.111
 uvicorn>=0.30
-
+requests>=2.31
+langdetect>=1.0.9
