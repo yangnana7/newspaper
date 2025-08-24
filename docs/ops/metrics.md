@@ -153,3 +153,4 @@ async def create_embedding_async(text):
 
 - 2025-08-24: 初版作成（HNSW+ランク融合+メトリクススプリント）
 - 2025-08-25: 非同期デコレータの使用例とGrafanaダッシュボード情報を追記
+- 2025-08-26: ranking.yaml に language_trust を追加（多言語信頼度の運用ヒント付記）

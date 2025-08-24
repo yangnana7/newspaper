@@ -6,14 +6,57 @@ Extract person/organization names and (future) link to external IDs.
 This is a placeholder; actual NLP/Wikidata integration will be implemented later.
 """
 from typing import List
+import re
+
+try:
+    import spacy  # type: ignore
+    _NLP = None
+except Exception:
+    spacy = None
+    _NLP = None
+
+
+def _fallback_extract(text: str) -> List[str]:
+    # Simple heuristics: sequences of Katakana or 3+ Kanji characters
+    katakana = r"[\u30A0-\u30FF]{2,}"
+    kanji3 = r"[\u4E00-\u9FFF]{3,}"
+    pattern = re.compile(f"({katakana}|{kanji3})")
+    return list({m.group(0) for m in pattern.finditer(text or "")})
+
+
+def _ensure_nlp():
+    global _NLP
+    if spacy is None:
+        return None
+    if _NLP is not None:
+        return _NLP
+    try:
+        _NLP = spacy.load("ja_core_news_sm")
+        return _NLP
+    except Exception:
+        return None
 
 
 def extract_entities(text: str) -> List[str]:
-    """Return a list of surface forms detected in the text.
-    Placeholder that returns an empty list.
+    """Extract surface forms of named entities from text.
+    Uses spaCy model when available; falls back to regex heuristics.
     """
-    # TODO: implement NER (e.g., spaCy) and link to Wikidata
-    return []
+    nlp = _ensure_nlp()
+    if nlp is not None:
+        try:
+            doc = nlp(text or "")
+            out = [ent.text for ent in doc.ents if ent.label_ in ("PERSON", "ORG", "GPE", "LOC")]
+            # Deduplicate while preserving order
+            seen = set()
+            uniq = []
+            for s in out:
+                if s not in seen:
+                    seen.add(s)
+                    uniq.append(s)
+            return uniq if uniq else _fallback_extract(text)
+        except Exception:
+            pass
+    return _fallback_extract(text)
 
 
 # SQL templates (for reference)
@@ -26,4 +69,3 @@ if __name__ == "__main__":
     text = sys.stdin.read()
     ents = extract_entities(text)
     print(json.dumps({"entities": ents}, ensure_ascii=False))
-

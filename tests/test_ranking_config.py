@@ -2,7 +2,8 @@ def test_ranking_yaml_loads_and_weights_sum_to_1():
     from search.ranker import load_ranking_config
     c = load_ranking_config()
     s = c["score_weights"]
-    assert abs(s["cosine"] + s["recency"] + s["source_trust"] - 1.0) < 1e-6
+    total = sum(float(v) for v in s.values())
+    assert abs(total - 1.0) < 1e-6
 
 
 def test_ranking_config_fallback_when_no_yaml():
@@ -31,3 +32,11 @@ def test_source_trust_loading():
         assert trust_map["nhk.or.jp"] == 0.2
     if "apnews.com" in trust_map:
         assert trust_map["apnews.com"] == 0.1
+
+
+def test_language_trust_loading_and_default():
+    from search.ranker import load_ranking_config, load_language_trust
+    c = load_ranking_config()
+    assert "language_trust" in c
+    lt = load_language_trust()
+    assert isinstance(lt, dict)

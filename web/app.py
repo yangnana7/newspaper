@@ -109,7 +109,7 @@ def api_search_sem(
                     sql = """
                       SELECT d.doc_id, d.title_raw, d.published_at,
                              (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-                             d.url_canon, d.source,
+                             d.url_canon, d.source, d.lang,
                              (v.emb <=> %s) AS dist
                       FROM chunk_vec v
                       JOIN chunk c USING(chunk_id)
@@ -119,7 +119,7 @@ def api_search_sem(
                       LIMIT %s OFFSET %s
                     """
                     rows = conn.execute(sql, (Vector(vec), space, cand, offset)).fetchall()
-                    reranked = rerank_candidates(rows, dist_index=6, published_index=2, source_index=5, limit=limit)
+                    reranked = rerank_candidates(rows, dist_index=7, published_index=2, source_index=5, language_index=6, limit=limit)
                     return [row_to_dict(r) for r in reranked]
             # フォールバック：最新順
             sql2 = """

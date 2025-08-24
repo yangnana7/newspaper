@@ -2,9 +2,15 @@ score_weights:
   cosine: 0.7
   recency: 0.2
   source_trust: 0.1
+  language: 0.0
 recency_half_life_hours: 48
 source_trust:
   default: 0.0
   # 例: 供給元ごとの重み
   nhk.or.jp: 0.2
   apnews.com: 0.1
+language_trust:
+  default: 0.0
+  ja: 0.9
+  en: 0.8
+  zh: 0.5
