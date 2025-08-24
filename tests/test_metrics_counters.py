@@ -13,8 +13,7 @@ def _metrics_available(content: str) -> bool:
     return 'Prometheus client not available' not in content
 
 
-@pytest.mark.asyncio
-async def test_counters_and_histograms_increment_strict():
+def test_counters_and_histograms_increment_strict():
     from mcp_news.metrics import (
         get_metrics_content,
         record_ingest_item,
@@ -38,16 +37,19 @@ async def test_counters_and_histograms_increment_strict():
     record_embedding_built()
 
     # Observe histograms via async decorators
-    @time_ingest_operation_async
-    async def _ingest():
-        await asyncio.sleep(0)
+    async def run_wrapped():
+        @time_ingest_operation_async
+        async def _ingest():
+            await asyncio.sleep(0)
 
-    @time_embed_operation_async
-    async def _embed():
-        await asyncio.sleep(0)
+        @time_embed_operation_async
+        async def _embed():
+            await asyncio.sleep(0)
 
-    await _ingest()
-    await _embed()
+        await _ingest()
+        await _embed()
+
+    asyncio.run(run_wrapped())
 
     content_after = get_metrics_content()
 
@@ -58,4 +60,3 @@ async def test_counters_and_histograms_increment_strict():
     # Validate histogram counts increased by at least 1 each (decorators)
     assert _parse_metric(content_after, 'ingest_duration_seconds_count') >= ingest_count_before + 1
     assert _parse_metric(content_after, 'embed_duration_seconds_count') >= embed_count_before + 1
-
