@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 try:
@@ -13,6 +14,9 @@ from mcp.server.fastmcp import FastMCP
 import psycopg
 from .db import connect
 from search.ranker import rerank_candidates
+
+# Import common metrics module
+from .metrics import get_metrics_content
 
 # Embedding space label used for vector search (must match embed_chunks --space)
 # Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility
@@ -227,6 +231,12 @@ def event_timeline(
                 }
             )
         return out
+
+
+@mcp.tool()
+def get_metrics() -> str:
+    """Return Prometheus metrics in text format."""
+    return get_metrics_content()
 
 
 if __name__ == "__main__":

@@ -3,7 +3,13 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 def env_float(name: str, default: float) -> float:
@@ -13,23 +19,73 @@ def env_float(name: str, default: float) -> float:
         return default
 
 
-def load_source_trust() -> Dict[str, float]:
-    raw = os.environ.get("SOURCE_TRUST_JSON", "")
-    if not raw:
-        return {}
+def load_ranking_config() -> Dict[str, Any]:
+    """Load ranking configuration from YAML file with fallback to defaults."""
+    config_path = Path(__file__).parent.parent / "config" / "ranking.yaml"
+    
+    # Default configuration
+    defaults = {
+        "score_weights": {
+            "cosine": 0.7,
+            "recency": 0.2,
+            "source_trust": 0.1
+        },
+        "recency_half_life_hours": 48,
+        "source_trust": {
+            "default": 0.0
+        }
+    }
+    
+    if not config_path.exists() or yaml is None:
+        return defaults
+    
     try:
-        m = json.loads(raw)
-        if isinstance(m, dict):
-            out: Dict[str, float] = {}
-            for k, v in m.items():
-                try:
-                    out[str(k)] = float(v)
-                except Exception:
-                    continue
-            return out
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f) or {}
+        
+        # Merge with defaults
+        result = defaults.copy()
+        if "score_weights" in config:
+            result["score_weights"].update(config["score_weights"])
+        if "recency_half_life_hours" in config:
+            result["recency_half_life_hours"] = config["recency_half_life_hours"]
+        if "source_trust" in config:
+            result["source_trust"].update(config["source_trust"])
+            
+        return result
     except Exception:
-        pass
-    return {}
+        return defaults
+
+
+def load_source_trust() -> Dict[str, float]:
+    """Load source trust configuration from YAML config or environment fallback."""
+    config = load_ranking_config()
+    trust_config = config["source_trust"]
+    
+    # Convert to float values, excluding 'default' key
+    result = {}
+    for k, v in trust_config.items():
+        if k != "default":
+            try:
+                result[str(k)] = float(v)
+            except Exception:
+                continue
+    
+    # Legacy environment variable fallback
+    raw = os.environ.get("SOURCE_TRUST_JSON", "")
+    if raw:
+        try:
+            m = json.loads(raw)
+            if isinstance(m, dict):
+                for k, v in m.items():
+                    try:
+                        result[str(k)] = float(v)
+                    except Exception:
+                        continue
+        except Exception:
+            pass
+    
+    return result
 
 
 def recency_decay(published_at: datetime, halflife_h: float) -> float:
@@ -58,17 +114,24 @@ def rerank_candidates(
     dist_index/published_index/source_index: indices of those fields in row
     limit: number of results to keep
     """
-    a = env_float("RANK_ALPHA", 0.7)
-    b = env_float("RANK_BETA", 0.2)
-    g = env_float("RANK_GAMMA", 0.1)
+    # Load configuration from YAML with environment variable fallbacks
+    config = load_ranking_config()
+    weights = config["score_weights"]
+    
+    # Environment variables take precedence for backward compatibility
+    a = env_float("RANK_ALPHA", weights["cosine"])
+    b = env_float("RANK_BETA", weights["recency"])
+    g = env_float("RANK_GAMMA", weights["source_trust"])
+    
     ssum = a + b + g
     if ssum <= 0:
         a, b, g = 1.0, 0.0, 0.0
         ssum = 1.0
     a, b, g = a / ssum, b / ssum, g / ssum
-    hl = env_float("RECENCY_HALFLIFE_HOURS", 24.0)
+    
+    hl = env_float("RECENCY_HALFLIFE_HOURS", config["recency_half_life_hours"])
     trust_map = load_source_trust()
-    trust_default = env_float("SOURCE_TRUST_DEFAULT", 1.0)
+    trust_default = env_float("SOURCE_TRUST_DEFAULT", config["source_trust"]["default"])
 
     scored: List[Tuple[float, Tuple[Any, ...]]] = []
     for r in rows:

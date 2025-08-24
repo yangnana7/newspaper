@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 import os, json, psycopg
 from datetime import timezone
@@ -8,8 +8,16 @@ from typing import Optional
 from pgvector.psycopg import Vector, register_vector
 from search.ranker import rerank_candidates
 
+# Import common metrics module
+from mcp_news.metrics import (
+    get_metrics_content, record_ingest_item, record_embedding_built,
+    time_ingest_operation, time_embed_operation,
+    time_ingest_operation_async, time_embed_operation_async,
+    CONTENT_TYPE_LATEST
+)
+
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
 
 app = FastAPI(title="MCP News – Minimal UI")
 # Avoid startup failure when static dir is absent during tests/CI
@@ -142,8 +150,22 @@ def api_search_sem(
             # 最後まで失敗した場合は空
             return []
 
+# Prometheus metrics endpoint
+@app.get("/metrics")
+def metrics():
+    """Return Prometheus metrics in text format."""
+    content = get_metrics_content()
+    return PlainTextResponse(content, media_type=CONTENT_TYPE_LATEST)
+
+
 # ルート：静的HTML
 @app.get("/", response_class=HTMLResponse)
 def index():
+    # Check if UI is enabled
+    ui_enabled = os.environ.get("UI_ENABLED", "0").strip().lower()
+    if ui_enabled not in ("1", "true", "yes", "on"):
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="UI is disabled. Set UI_ENABLED=1 to enable.")
+    
     with open("web/templates/index.html", "r", encoding="utf-8") as f:
         return f.read()
