@@ -2,13 +2,21 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "Feature/0824 workbanch", main, master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "Feature/0824 workbanch", main, master ]
 
 jobs:
   test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      # Fixed environment expected by imports/tests (no real DB connection required)
+      APP_BIND_HOST: 127.0.0.1
+      APP_BIND_PORT: '3011'
+      DATABASE_URL: postgresql://127.0.0.1/newshub
+      CI: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,15 +29,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run tests
-        env:
-          # Provide fixed environment expected by tests
-          APP_BIND_HOST: 127.0.0.1
-          APP_BIND_PORT: '3011'
-          DATABASE_URL: postgresql://127.0.0.1/newshub
-        run: |
-          pytest -q
-
+        run: pytest -q

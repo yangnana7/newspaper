@@ -4,7 +4,14 @@ import pytest
 
 
 def _parse_metric(content: str, name: str) -> float:
-    pattern = re.compile(rf"^{name}\{{.*\}}\s+([0-9eE+\-.]+)$", re.M)
+    # Match either counter without labels or with labels, in multiline content
+    # Example:
+    #   items_ingested_total 3
+    #   items_ingested_total{label="v"} 3
+    pattern = re.compile(
+        rf"^{name}(?:\{{[^\}}]*\}})?\s+([0-9eE+\-.]+)$",
+        re.MULTILINE,
+    )
     m = pattern.search(content)
     return float(m.group(1)) if m else 0.0
 
