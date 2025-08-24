@@ -228,15 +228,39 @@ def event_timeline(
         rows = conn.execute(sql, tuple(params)).fetchall()
         out: List[Dict[str, Any]] = []
         for r in rows:
-            out.append(
-                {
-                    "event_id": r[0],
-                    "type_id": r[1],
-                    "t_start": _to_iso(r[2]) if r[2] else None,
-                    "t_end": _to_iso(r[3]) if r[3] else None,
-                    "loc_geohash": r[4],
-                }
-            )
+            item: Dict[str, Any] = {
+                "event_id": r[0],
+                "type_id": r[1],
+                "t_start": _to_iso(r[2]) if r[2] else None,
+                "t_end": _to_iso(r[3]) if r[3] else None,
+                "loc_geohash": r[4],
+            }
+            # Participants (ext_id and name when available)
+            try:
+                pr = conn.execute(
+                    """
+                    SELECT en.ext_id, COALESCE(en.attrs->>'name','') AS name
+                    FROM event_participant ep
+                    JOIN entity en ON en.ent_id = ep.ent_id
+                    WHERE ep.event_id=%s
+                    """,
+                    (r[0],),
+                ).fetchall()
+                item["participants"] = [
+                    {"ext_id": p[0], "name": p[1]} for p in pr
+                ]
+            except Exception:
+                item["participants"] = []
+            # Evidence docs
+            try:
+                dr = conn.execute(
+                    "SELECT doc_id FROM evidence WHERE event_id=%s ORDER BY doc_id",
+                    (r[0],),
+                ).fetchall()
+                item["doc_ids"] = [d[0] for d in dr]
+            except Exception:
+                item["doc_ids"] = []
+            out.append(item)
         return out
 
 

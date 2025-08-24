@@ -7,6 +7,7 @@ This is a placeholder; actual extraction logic will be implemented later.
 """
 from typing import Any, Dict, List
 import re
+from .entity_link import extract_entities
 
 
 def extract_events(text: str) -> List[Dict[str, Any]]:
@@ -41,6 +42,18 @@ def extract_events(text: str) -> List[Dict[str, Any]]:
             "t_end": ds,
             "participants": []
         })
+    # Participants (simple reuse of entity extraction)
+    parts = extract_entities(text)
+    if parts:
+        for e in out:
+            e.setdefault("participants", [])
+            e["participants"].extend(parts)
+
+    # Simple location mapping (placeholder)
+    if "東京" in (text or ""):
+        for e in out:
+            e["loc_geohash"] = "xn76"  # placeholder code for Tokyo area
+
     return out
 
 
