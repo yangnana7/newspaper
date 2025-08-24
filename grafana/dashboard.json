@@ -1,0 +1,41 @@
+{
+  "title": "MCP News Metrics",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Items Ingested / min",
+      "gridPos": {"x": 0, "y": 0, "w": 8, "h": 6},
+      "targets": [
+        {"expr": "rate(items_ingested_total[1m]) * 60", "refId": "A"}
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Embeddings Built / min",
+      "gridPos": {"x": 8, "y": 0, "w": 8, "h": 6},
+      "targets": [
+        {"expr": "rate(embeddings_built_total[1m]) * 60", "refId": "A"}
+      ]
+    },
+    {
+      "type": "gauge",
+      "title": "Ingest avg latency (s)",
+      "gridPos": {"x": 0, "y": 6, "w": 8, "h": 8},
+      "targets": [
+        {"expr": "rate(ingest_duration_seconds_sum[5m]) / rate(ingest_duration_seconds_count[5m])", "refId": "A"}
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Embed p95 latency (s)",
+      "gridPos": {"x": 8, "y": 6, "w": 16, "h": 8},
+      "targets": [
+        {"expr": "histogram_quantile(0.95, rate(embed_duration_seconds_bucket[5m]))", "refId": "A"}
+      ]
+    }
+  ]
+}
+

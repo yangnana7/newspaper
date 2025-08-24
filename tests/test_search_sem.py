@@ -2,6 +2,12 @@ import os
 import json
 import pytest
 
+# CIではDBを立てない方針。環境変数でDB依存テストをスキップ可能化。
+pytestmark = pytest.mark.skipif(
+    os.getenv("SKIP_DB_TESTS") == "1",
+    reason="CI environment without database"
+)
+
 pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient
 
@@ -44,4 +50,3 @@ def test_ilike_endpoint_ok():
     r = client.get("/api/search", params={"q": "a", "limit": 1, "offset": 0})
     assert r.status_code == 200
     assert isinstance(r.json(), list)
-

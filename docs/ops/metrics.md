@@ -124,6 +124,32 @@ def create_embedding(text):
     record_embedding_built()  # 完了時に呼び出し
 ```
 
+#### 非同期（async）関数での使用例
+```python
+from mcp_news.metrics import (
+    time_ingest_operation_async,
+    time_embed_operation_async,
+    record_ingest_item,
+    record_embedding_built,
+)
+
+@time_ingest_operation_async
+async def process_feed_item_async(item):
+    # 非同期の取り込み処理
+    record_ingest_item()
+
+@time_embed_operation_async
+async def create_embedding_async(text):
+    # 非同期の埋め込み作成処理
+    record_embedding_built()
+```
+
+## Grafanaダッシュボード
+
+- ダッシュボードJSON: `grafana/dashboard.json`
+- インポート手順は `docs/ops/grafana.md` を参照
+
 ## 更新履歴
 
 - 2025-08-24: 初版作成（HNSW+ランク融合+メトリクススプリント）
+- 2025-08-25: 非同期デコレータの使用例とGrafanaダッシュボード情報を追記

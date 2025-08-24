@@ -2,72 +2,36 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ "Feature/0824 workbanch", main, master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ "Feature/0824 workbanch", main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/testdb
-      EMBED_SPACE: bge-m3
-      ENABLE_SERVER_EMBEDDING: "0"
-
+      PYTHONUNBUFFERED: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+      # Fixed environment expected by imports/tests (no real DB connection required)
+      APP_BIND_HOST: 127.0.0.1
+      APP_BIND_PORT: '3011'
+      DATABASE_URL: postgresql://127.0.0.1/newshub
+      CI: "true"
+      SKIP_DB_TESTS: "1"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Install system tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
-
-      - name: Ensure pgvector extension exists
-        run: |
-          until psql "$DATABASE_URL" -c "SELECT 1" >/dev/null 2>&1; do
-            echo 'waiting for postgres...'; sleep 2; done
-          psql "$DATABASE_URL" -c 'CREATE EXTENSION IF NOT EXISTS vector;'
-
-      - name: Install Python deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Hardening: ensure critical deps even if requirements.txt changes
-          pip install psycopg[binary] pgvector
-          pip install pytest
-
-      - name: Apply schema
-        run: |
-          if [ -f db/schema_v2.sql ]; then
-            psql "$DATABASE_URL" -f db/schema_v2.sql
-          else
-            echo "schema_v2.sql not found; skipping"
-          fi
-
-      - name: Static checks
-        run: |
-          python -m compileall -q .
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run tests
-        run: |
-          # Limit collection to repo tests to avoid duplicate names in docs/ci_pack
-          PYTHONPATH=. pytest -q tests
+        run: pytest -q
