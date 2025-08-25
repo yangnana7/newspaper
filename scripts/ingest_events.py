@@ -56,7 +56,7 @@ def ingest(limit: int = 1000) -> int:
                         ent_id = er[0]
                     else:
                         er = conn.execute(
-                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s::text)) RETURNING ent_id",
                             (name,),
                         ).fetchone()
                         ent_id = er[0]

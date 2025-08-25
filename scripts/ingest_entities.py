@@ -38,7 +38,7 @@ def ingest(limit: int = 1000) -> int:
                 row = conn.execute(
                     """
                     INSERT INTO entity (ext_id, kind, attrs)
-                    VALUES (NULL, NULL, jsonb_build_object('name', %s))
+                    VALUES (NULL, NULL, jsonb_build_object('name', %s::text))
                     ON CONFLICT DO NOTHING
                     RETURNING ent_id
                     """,
