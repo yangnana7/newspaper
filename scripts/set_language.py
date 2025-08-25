@@ -7,7 +7,10 @@ import os
 import re
 from typing import Optional
 
-import psycopg
+try:
+    import psycopg  # type: ignore
+except Exception:
+    psycopg = None  # type: ignore
 
 try:
     from langdetect import detect as _ld_detect  # type: ignore
@@ -87,6 +90,8 @@ def detect_lang(text: str) -> Optional[str]:
 
 
 def _connect():
+    if psycopg is None:
+        raise RuntimeError("psycopg is required for DB operations")
     dsn = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
     return psycopg.connect(dsn)
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable, List, Tuple, Dict
+from typing import Iterable, List, Tuple, Dict, Set
 
 
 _RE_ALNUM = re.compile(r"[A-Za-z0-9]+", re.UNICODE)
@@ -27,6 +27,10 @@ def _shingles(text: str, k: int = 3) -> List[str]:
     return list(dict.fromkeys(out))  # dedupe preserving order
 
 
+def _token_set(text: str) -> Set[str]:
+    return set(_RE_ALNUM.findall((text or "").lower()))
+
+
 def simhash64(text: str) -> int:
     """Compute a 64-bit SimHash from text shingles."""
     feats = _shingles(text, 3)
@@ -49,16 +53,20 @@ def hamming(a: int, b: int) -> int:
     return int(bin((a ^ b) & ((1 << 64) - 1)).count("1"))
 
 
-def cluster_by_simhash(items: Iterable[Tuple[int, str]], threshold: int = 3) -> Dict[int, List[int]]:
+def cluster_by_simhash(
+    items: Iterable[Tuple[int, str]],
+    threshold: int = 3,
+    jaccard_threshold: float = 0.4,
+) -> Dict[int, List[int]]:
     """Greedy clustering by SimHash Hamming distance.
     items: iterable of (id, title)
     returns: {cluster_id: [doc_ids...]}
     """
-    hashes: List[Tuple[int, int]] = []  # (doc_id, simhash)
-    for doc_id, title in items:
-        hashes.append((doc_id, simhash64(title)))
+    data: List[Tuple[int, str]] = list(items)
+    hashes: List[Tuple[int, int]] = [(doc_id, simhash64(title)) for doc_id, title in data]
     clusters: Dict[int, List[int]] = {}
     used: set[int] = set()
+    toksets: Dict[int, Set[str]] = {doc_id: _token_set(title) for doc_id, title in data}
     for i, (doc_i, h_i) in enumerate(hashes):
         if doc_i in used:
             continue
@@ -72,5 +80,14 @@ def cluster_by_simhash(items: Iterable[Tuple[int, str]], threshold: int = 3) -> 
             if hamming(h_i, h_j) <= threshold:
                 clusters[cid].append(doc_j)
                 used.add(doc_j)
+            else:
+                # Fallback with token Jaccard similarity
+                a, b = toksets.get(doc_i, set()), toksets.get(doc_j, set())
+                if a and b:
+                    inter = len(a & b)
+                    union = len(a | b) or 1
+                    jacc = inter / union
+                    if jacc >= jaccard_threshold:
+                        clusters[cid].append(doc_j)
+                        used.add(doc_j)
     return clusters
-

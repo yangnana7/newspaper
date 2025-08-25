@@ -11,8 +11,23 @@ try:
 except Exception:  # pragma: no cover
     from typing import TypedDict  # type: ignore
 
-from mcp.server.fastmcp import FastMCP
-import psycopg
+try:
+    from mcp.server.fastmcp import FastMCP
+except Exception:  # pragma: no cover
+    # Lightweight stub to allow imports in environments without mcp installed
+    class FastMCP:  # type: ignore
+        def __init__(self, name: str):
+            self.name = name
+        def tool(self, *args, **kwargs):
+            def deco(f):
+                return f
+            return deco
+        def run_stdio(self) -> None:
+            pass
+try:
+    import psycopg  # type: ignore
+except Exception:  # pragma: no cover
+    psycopg = None  # type: ignore
 from .db import connect
 from search.ranker import rerank_candidates
 
@@ -62,7 +77,7 @@ def _to_iso(dt_utc: datetime) -> str:
     return dt_utc.isoformat(timespec="seconds")
 
 
-def _row_to_bundle(row: psycopg.rows.Row) -> Bundle:
+def _row_to_bundle(row) -> Bundle:
     return {
         "doc_id": row[0],
         "title": row[1],
