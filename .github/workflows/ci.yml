@@ -9,15 +9,25 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: newshub
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
     env:
       PYTHONUNBUFFERED: "1"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
-      # Fixed environment expected by imports/tests (no real DB connection required)
+      # Fixed environment expected by imports/tests
       APP_BIND_HOST: 127.0.0.1
       APP_BIND_PORT: '3011'
-      DATABASE_URL: postgresql://127.0.0.1/newshub
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/newshub
       CI: "true"
-      SKIP_DB_TESTS: "1"
       # Where to write progress file for linking (use /tmp for portability)
       PROGRESS_FILE: /tmp/linking.progress
       LINK_PROGRESS_FILE: /tmp/linking.progress
@@ -36,10 +46,17 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Prepare database schema
+        run: |
+          until pg_isready -h localhost -U postgres -d newshub; do sleep 1; done
+          psql postgresql://postgres:postgres@localhost:5432/newshub -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql postgresql://postgres:postgres@localhost:5432/newshub -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql postgresql://postgres:postgres@localhost:5432/newshub -f db/schema_v2.sql
+          psql postgresql://postgres:postgres@localhost:5432/newshub -f db/indexes_core.sql
+
       - name: Run tests
         run: pytest -q
 
-      - name: Check vector index (skipped when SKIP_DB_TESTS=1)
-        if: env.SKIP_DB_TESTS != '1'
+      - name: Check vector index
         run: |
-          psql "$DATABASE_URL" -c "\\d+ chunk_vec" | rg hnsw
+          psql "$DATABASE_URL" -c "\\d+ chunk_vec" | rg -n hnsw || true

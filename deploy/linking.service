@@ -1,0 +1,15 @@
+[Unit]
+Description=Link entities via Wikidata (newshub)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/default/mcp-news
+WorkingDirectory=/opt/mcp-news
+ExecStart=/opt/mcp-news/.venv/bin/python scripts/link_entities_wikidata.py --config config/linking.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
