@@ -8,3 +8,10 @@ def test_detect_lang_basic_cases():
     # Chinese (CJK unified ideographs)
     assert detect_lang("这是一个用于测试的中文句子。") == "zh"
 
+
+def test_detect_lang_zh_variants():
+    from scripts.set_language import detect_lang
+    # Simplified and Traditional variants should canonicalize to 'zh'
+    samples = ["简体中文测试", "繁體中文測試"]
+    for s in samples:
+        assert detect_lang(s) == "zh"

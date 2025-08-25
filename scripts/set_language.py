@@ -13,6 +13,34 @@ try:
 except Exception:
     _ld_detect = None
 
+# Language aliases and canonicalization rules
+_ALIASES = {
+    # Chinese variants -> zh
+    "zh-cn": "zh",
+    "zh-sg": "zh",
+    "zh-my": "zh",
+    "zh-tw": "zh",
+    "zh-hk": "zh",
+    "zh-hans": "zh",
+    "zh-hant": "zh",
+    # Legacy/region variants
+    "iw": "he",   # Hebrew old -> he
+    "in": "id",   # Indonesian old -> id
+    "ji": "yi",
+    "pt-br": "pt",
+    "pt-pt": "pt",
+}
+
+
+def _canon_lang(code: Optional[str]) -> str:
+    """Canonicalize language code: map zh-* -> zh, apply aliases, drop region tags."""
+    if not code:
+        return "und"
+    c = str(code).lower().replace("_", "-")
+    if c == "zh" or c.startswith("zh-"):
+        return "zh"
+    return _ALIASES.get(c, c.split("-")[0])
+
 
 def detect_lang(text: str) -> Optional[str]:
     t = (text or "").strip()
@@ -22,21 +50,21 @@ def detect_lang(text: str) -> Optional[str]:
     if _ld_detect is not None:
         try:
             code = _ld_detect(t)
-            return code
+            return _canon_lang(code)
         except Exception:
             pass
     # Heuristic fallback
     # If contains Hiragana/Katakana, likely Japanese
     if any("\u3040" <= ch <= "\u30ff" for ch in t):
-        return "ja"
+        return _canon_lang("ja")
     # Cyrillic -> Russian
     if any("\u0400" <= ch <= "\u04ff" for ch in t):
-        return "ru"
+        return _canon_lang("ru")
     # CJK Unified Ideographs -> Chinese (undifferentiated)
     if any("\u4e00" <= ch <= "\u9fff" for ch in t):
-        return "zh"
+        return _canon_lang("zh")
     # Basic Latin default -> English
-    return "en"
+    return _canon_lang("en")
 
 
 def _connect():
@@ -68,4 +96,3 @@ if __name__ == "__main__":
         print(f"updated_lang={n}")
     except Exception as e:
         print(f"error: {e}")
-
