@@ -56,6 +56,7 @@ jobs:
           psql postgresql://postgres:postgres@localhost:5432/newshub -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql postgresql://postgres:postgres@localhost:5432/newshub -f db/schema_v2.sql
           psql postgresql://postgres:postgres@localhost:5432/newshub -f db/indexes_core.sql
+          for f in db/migrations/*.sql; do if [ -f "$f" ]; then psql postgresql://postgres:postgres@localhost:5432/newshub -f "$f"; fi; done
 
       - name: Run tests
         run: pytest -q

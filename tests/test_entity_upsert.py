@@ -22,11 +22,13 @@ def test_entity_upsert_conflict_dedup(monkeypatch):
     with psycopg.connect(dsn) as conn:
         # Insert a doc and chunk minimally for ingest to read
         drow = conn.execute(
-            "INSERT INTO doc (title_raw, published_at, url_canon) VALUES ('t', now() AT TIME ZONE 'UTC', 'u') RETURNING doc_id"
+            """INSERT INTO doc (source, title_raw, published_at, url_canon)
+                 VALUES ('test', 't', now() AT TIME ZONE 'UTC', 'u')
+                 RETURNING doc_id"""
         ).fetchone()
         doc_id = drow[0]
         crow = conn.execute(
-            "INSERT INTO chunk (doc_id, ord, text_raw) VALUES (%s, 0, %s) RETURNING chunk_id",
+            "INSERT INTO chunk (doc_id, part_ix, text_raw) VALUES (%s, 0, %s) RETURNING chunk_id",
             (doc_id, text),
         ).fetchone()
         chunk_id = crow[0]
@@ -50,4 +52,3 @@ def test_entity_upsert_conflict_dedup(monkeypatch):
             conn.commit()
         except Exception:
             conn.rollback()
-
