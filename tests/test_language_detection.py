@@ -15,3 +15,9 @@ def test_detect_lang_zh_variants():
     samples = ["简体中文测试", "繁體中文測試"]
     for s in samples:
         assert detect_lang(s) == "zh"
+
+
+def test_detect_lang_kana_priority():
+    from scripts.set_language import detect_lang
+    assert detect_lang("テストです") == "ja"
+    assert detect_lang("これはテストです。") == "ja"

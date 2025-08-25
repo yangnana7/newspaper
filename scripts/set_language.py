@@ -4,6 +4,7 @@ Set language codes for doc records.
 Uses langdetect when available; falls back to heuristic rules.
 """
 import os
+import re
 from typing import Optional
 
 import psycopg
@@ -46,25 +47,43 @@ def detect_lang(text: str) -> Optional[str]:
     t = (text or "").strip()
     if not t:
         return None
-    # Try langdetect
+
+    # Script-based hints (robust to detector noise)
+    _RE_HAN = re.compile(r"[\u4E00-\u9FFF]")            # CJK unified ideographs
+    _RE_KANA = re.compile(r"[\u3040-\u309F\u30A0-\u30FF]")  # Hiragana/Katakana
+    _RE_HANGUL = re.compile(r"[\u1100-\u11FF\uAC00-\uD7A3]") # Hangul Jamo + Syllables
+    _RE_CYR = re.compile(r"[\u0400-\u04FF]")             # Cyrillic
+
+    has_han = bool(_RE_HAN.search(t))
+    has_kana = bool(_RE_KANA.search(t))
+    has_hangul = bool(_RE_HANGUL.search(t))
+    has_cyr = bool(_RE_CYR.search(t))
+
+    # Strong priorities
+    if has_kana:
+        return "ja"
+    if has_hangul and not has_kana:
+        return "ko"
+    if has_cyr:
+        return "ru"
+
+    # Detector + canonicalization
+    hint = "zh" if (has_han and not has_kana and not has_hangul) else None
     if _ld_detect is not None:
         try:
-            code = _ld_detect(t)
-            return _canon_lang(code)
+            raw = _ld_detect(t)
+            canon = _canon_lang(raw)
+            if hint == "zh" and canon == "ko":
+                return "zh"
+            return hint or canon
         except Exception:
             pass
-    # Heuristic fallback
-    # If contains Hiragana/Katakana, likely Japanese
-    if any("\u3040" <= ch <= "\u30ff" for ch in t):
-        return _canon_lang("ja")
-    # Cyrillic -> Russian
-    if any("\u0400" <= ch <= "\u04ff" for ch in t):
-        return _canon_lang("ru")
-    # CJK Unified Ideographs -> Chinese (undifferentiated)
-    if any("\u4e00" <= ch <= "\u9fff" for ch in t):
-        return _canon_lang("zh")
-    # Basic Latin default -> English
-    return _canon_lang("en")
+
+    # Fallback if detector unavailable/failed
+    if hint:
+        return hint
+    # Default to English
+    return "en"
 
 
 def _connect():
