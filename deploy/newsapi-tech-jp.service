@@ -6,6 +6,5 @@ After=network.target postgresql.service
 Type=oneshot
 EnvironmentFile=-/etc/default/mcp-news
 Environment=DATABASE_URL=postgresql://localhost/newshub
-WorkingDirectory=%h/mcp-news
-ExecStart=%h/mcp-news/.venv/bin/python scripts/ingest_newsapi.py --mode top --country jp --category technology --page-size 50 --pages 1 --sleep 0.5
-
+WorkingDirectory=/opt/mcp-news
+ExecStart=/opt/mcp-news/.venv/bin/python scripts/ingest_newsapi.py --mode top --country jp --category technology --page-size 50 --pages 1 --sleep 0.5

@@ -8,8 +8,8 @@ Environment=DATABASE_URL=postgresql://localhost/newshub
 Environment=ENABLE_SERVER_EMBEDDING=1
 Environment=EMBEDDING_MODEL=intfloat/multilingual-e5-base
 Environment=EMBED_SPACE=bge-m3
-WorkingDirectory=%h/mcp-news
-ExecStart=%h/mcp-news/.venv/bin/python -m mcp_news.server
+WorkingDirectory=/opt/mcp-news
+ExecStart=/opt/mcp-news/.venv/bin/python -m mcp_news.server
 Restart=on-failure
 
 [Install]

@@ -1,0 +1,5 @@
+alpha = 0.7   # cosine similarity weight
+beta  = 0.2   # recency weight
+gamma = 0.1   # source_trust weight
+half_life_hours = 48
+
