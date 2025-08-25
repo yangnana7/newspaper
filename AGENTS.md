@@ -1,0 +1,275 @@
+# 実装マニュアル（MCP-Firstポリシー準拠）
+
+**このファイルに対する改竄、書き込みは禁止とします。**
+## 重要な注意事項
+設計図、実装指示書、流れ、報告書は/docsフォルダへ保存。作業開始する前には一通り確認してください。
+
+作業開始前に必ず現状ソースコードを一読し、すでに完成した内容に関しては重複実施しないように注意してください。
+
+作業実施完了後はログと報告書を/docsフォルダへ記入してください。
+
+プロジェクトGit：`https://github.com/yangnana7/newspaper.git`
+
+本番環境：Ubuntu Server 24.04 LTS
+サーバースペック
+CPU:Intel(R) Core(TM) i3-6100T CPU @ 3.20GHz
+MemTotal:8021408 kB
+Memory Device
+Size: 8 GB
+Manufacturer: Samsung
+Type: DDR4
+Configured Memory Speed: 2133 MT/s
+
+## 1\. プロジェクトの基本方針：MCP-First
+
+本プロジェクトは、多源のニュースを規格化して蓄積し、意味検索と実体・事象抽出により、AIエージェントが自律的に取得・分析・要約・根拠提示を為し得る\*\*「機械可読の報道基盤（MCPサーバー）」が本体\*\*です。
+
+人間向けのUIは、あくまで開発・検収時の動作確認用という位置づけであり、**既定（デフォルト）では無効化**されています。この「MCPが主、UIは従」という思想を **MCP-Firstポリシー** と呼びます。
+
+### 1.1. 公開インターフェース（既定）
+
+恒久的に公開されるインターフェースは以下のAPIのみです。
+
+  * `GET /search`：タイトル ILIKE ベースの検索
+  * `GET /search_sem`：ベクトル（cos `<=>`）ベースの検索
+  * `GET /api/*`：その他、内部用の拡張API
+
+ルート (`/`) や `/static/` といったUI関連のパスは、境界装置（Nginx/Ingressなど）で非公開とすることを強く推奨します。
+
+### 1.2. UIの扱い
+
+  * **既定ではUIは提供しません**（`/` にアクセスすると404エラーとなります）。
+  * 開発・検収時に限り、環境変数 `UI_ENABLED=1` を設定することで、UIをローカルで起動できます。
+    ```bash
+    export UI_ENABLED=1
+    uvicorn web.app:app --host 127.0.0.1 --port 8000 --reload
+    ```
+
+## 2\. 到達機能（要点）
+
+  * **取材源の統合**：RSS・公式API等の定義済みソースを時刻同期の下に巡回し、URL正規化・重複抑止・メタ情報補全を施して保存する。
+  * **意味検索の中核**：文書を分割・埋め込みし、pgvector の **cos** 類似にて高速検索を実現する。問合せは多言語で通用し、最新性による後退戦略（フォールバック）を常備する。
+  * **実体／事象の構造化**：人名・組織・地名等を知識基盤（例：Wikidata）へ接続し、出来事を「誰が／何を／いつ／どこで」に整形する。時系列の集約・統合が可能となる。
+  * **集合と抄出**：近重複をクラスタとして束ね、代表記事と同群記事数を示し、要約・論点抽出・賛否整理等を機械生成する。
+  * **ランキング統御**：語彙一致・意味類似・新鮮度・ソース信頼度を重み付け融合し、利用目的に応じた序列を与える。
+  * **根拠の可視**：各生成結果に対し、引用元URL・該当スパン等の証拠列挙を返し、監査性と再現性を担保する。
+  * **MCP連携**：機能はMCPサーバのツール群として外部へ開放され、AIエージェントは検索・要約・比較検討・レポート作成を対話的に遂行し得る。
+  * **拡張と運用（MCP-First）**：ソースは設定で増補可能、指標は監視に供し、失敗時は自動復旧・安全降格にて継続する。**UIは確認用の最小構成に留め、下流システムへの組込みを前提とします。**
+
+要するに、本ツールは「ニュースという逐次流入データを、**検索可能な知識（Entities/Events）** として整序し、**AIが根拠付きで任意の問いに答える**」ための中核基盤です。
+
+-----
+
+## 3\. 実装ルール（環境統一・改変禁止）
+
+**「DB名を newshub に固定」「AI/サーバの接続先を localhost:3011 に固定」** を前提に、名称の“勝手改変”を防ぐための実装マニュアル（運用規約＋ガード方法＋自動検知）を以下に定めます。
+
+### 3.1. 用語整理（固定値）
+
+  * **データベース名**：`newshub`（PostgreSQL、拡張 pgvector 有効）
+  * **アプリ接続先**（AI/サーバが叩くHTTPエンドポイント）：`http://127.0.0.1:3011`
+      * 以降、本書では「**サービスの公開ポート＝3011**」と記す
+  * **テーブル／スキーマ名**：既存の `doc / chunk / chunk_vec / entity / event / hint` を**変更禁止**（追加は可）
+  * **ベクトル次元**：`vector(768)` 固定
+  * **距離関数**：cos（`<=>` / `vector_cosine_ops`）。L2禁止。
+  * **タイムゾーン**：DB格納=UTC、UI/API表示=JST
+
+> 注：「テーブル名を newshub へ固定」という表現は **“DB名を newshub に固定”** の意味として運用します。テーブル名は既存名を保持してください。
+
+### 3.2. 環境定義（.env／EnvironmentFile）
+
+#### `/etc/default/mcp-news`（systemdのEnvironmentFileとして使用）
+
+```bash
+# ----- 固定値：変更禁止 -----
+DATABASE_URL=postgresql://127.0.0.1:5432/newshub
+APP_BIND_HOST=127.0.0.1
+APP_BIND_PORT=3011
+
+# ----- UIの有効化（開発時のみ） -----
+# UI_ENABLED=1
+
+# ベクトル空間・距離前提
+EMBEDDING_SPACE=bge-m3
+ENABLE_SERVER_EMBEDDING=0   # サーバ側で埋め込み計算しない（クライアント生成を推奨）
+
+# ----- ログ/監視（任意） -----
+LOG_LEVEL=info
+```
+
+#### コード側での強制ガード（Python）
+
+サーバ起動時の先頭で必ず以下のガード関数を呼び出します。
+
+```python
+# mcp_news/config_guard.py
+import os, sys
+
+def _die(msg: str):
+    sys.stderr.write(f"[FATAL CONFIG] {msg}\n")
+    sys.exit(2)
+
+def require_fixed_env():
+    # DB名・接続先ガード
+    url = os.environ.get("DATABASE_URL", "")
+    if "/newshub" not in url:
+        _die("DATABASE_URL must point to database 'newshub'")
+
+    host = os.environ.get("APP_BIND_HOST", "")
+    port = os.environ.get("APP_BIND_PORT", "")
+    if host != "127.0.0.1" or str(port) != "3011":
+        _die("APP_BIND_HOST/PORT must be 127.0.0.1:3011")
+
+    # 禁止：L2 など距離関数変更の痕跡（任意の簡易チェック例）
+    space = os.environ.get("EMBEDDING_SPACE", "")
+    if not space:
+        _die("EMBEDDING_SPACE must be set (e.g., bge-m3)")
+
+# mcp_news/server.py（先頭付近）
+from mcp_news.config_guard import require_fixed_env
+require_fixed_env()
+```
+
+### 3.3. サービス定義（systemd）
+
+```ini
+# /etc/systemd/system/newshub-api@.service
+[Unit]
+Description=Newshub API (FastAPI/MCP) for %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=%i
+WorkingDirectory=/opt/mcp-news
+EnvironmentFile=/etc/default/mcp-news
+# 3011で待受（固定）
+ExecStart=/opt/mcp-news/.venv/bin/uvicorn mcp_news.server:app --host ${APP_BIND_HOST} --port ${APP_BIND_PORT}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 3.4. データベース初期化
+
+```bash
+sudo -u postgres psql <<'SQL'
+CREATE DATABASE newshub;
+\c newshub
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+SQL
+
+# 既存スキーマ・インデックス適用
+psql postgresql://127.0.0.1/newshub -f db/schema_v2.sql
+psql postgresql://127.0.0.1/newshub -f db/indexes_core.sql
+```
+
+> **禁止**：`CREATE DATABASE` の別名、`DATABASE_URL` の別ホスト、別ポート使用。
+
+-----
+
+## 4\. 逸脱の自動検知（テストとCI）
+
+### 4.1. 環境設定の受け入れテスト（pytest）
+
+```python
+# tests/test_env_lock.py
+import os
+
+def test_database_url_locked():
+    url = os.environ.get("DATABASE_URL","")
+    assert "/newshub" in url, "DB must be 'newshub'"
+
+def test_bind_locked():
+    assert os.environ.get("APP_BIND_HOST") == "127.0.0.1"
+    assert os.environ.get("APP_BIND_PORT") == "3011"
+```
+
+### 4.2. MCP-Firstポリシーのテスト（pytest）
+
+既定でUIが無効（ルートが404）であることをテストで保証します。
+
+```python
+# tests/test_ui_policy.py
+import pytest
+from fastapi.testclient import TestClient
+
+pytest.importorskip("mcp_news.server")
+from mcp_news.server import app
+
+client = TestClient(app)
+
+def test_root_is_404_by_default():
+    """
+    MCP-first の原則により、既定では人間UIは提供しない。
+    サーバーにルート(/)を生やしていないこと（= 404）を担保する。
+    """
+    r = client.get("/")
+    assert r.status_code == 404
+```
+
+### 4.3. pre-commit フック（任意）
+
+コミット前に設定値の変更を検知し、逸脱を防ぎます。
+
+```bash
+# .git/hooks/pre-commit
+#!/bin/sh
+# DB名・ポートの改変を防止（簡易チェック）
+if git diff --cached -U0 | grep -E 'DATABASE_URL=.*(?!newshub)'; then
+  echo "[BLOCK] DATABASE_URL の DB名変更検出" >&2; exit 1
+fi
+if git diff --cached -U0 | grep -E 'APP_BIND_PORT=.*(?!3011)'; then
+  echo "[BLOCK] APP_BIND_PORT の変更検出" >&2; exit 1
+fi
+exit 0
+```
+
+-----
+
+## 5\. Nginx 連携とUIアクセス制限
+
+Nginx等をフロントに置く場合も、**内部のUvicornは `127.0.0.1:3011` 固定**です。上流のAIやバックエンドジョブは常にこの固定アドレスを直接参照してください。
+
+### Nginx スニペット例（UI無効化）
+
+デフォルト運用では、以下の設定でAPIのみを公開し、UI関連パスへのアクセスを拒否します。
+
+```nginx
+# snippets/deny_ui.conf
+
+# UI 無効時の Nginx スニペット例（API のみ公開）
+# - ルート(/) と /static/ を 403 にする
+# - /search, /search_sem, /api/ のみをバックエンドへ転送
+
+location = / { return 403; }
+location /static/ { return 403; }
+
+location /search {
+    proxy_pass http://127.0.0.1:3011;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+location /search_sem {
+    proxy_pass http://127.0.0.1:3011;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+location /api/ {
+    proxy_pass http://127.0.0.1:3011;
+}
+```
+
+-----
+
+## 6\. 運用のコア原則（まとめ）
+
+1.  **MCP-First**: プロジェクトの主役はAI向けAPIであり、UIは最小限の確認用に従属する。
+2.  **名前は環境で固定、コードで再固定**: DB名やポートは設定ファイルで固定し、起動時ガードで二重に保証する。
+3.  **逸脱はテストとフックで“失敗”させて通知**: ポリシー違反はCI/CDパイプラインで検知し、マージさせない。
+4.  **外部都合はプロキシ層で吸収**: 外部公開ポートの変更などはNginx層で行い、アプリ内部は不変を保つ。
+5.  **データ仕様は変更不可**: ベクトル次元 `vector(768)` と距離関数 `cos (<=>)` は本システムの根幹であり、変更しない。
