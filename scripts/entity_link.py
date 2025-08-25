@@ -17,11 +17,19 @@ except Exception:
 
 
 def _fallback_extract(text: str) -> List[str]:
-    # Simple heuristics: sequences of Katakana or 3+ Kanji characters
-    katakana = r"[\u30A0-\u30FF]{2,}"
-    kanji3 = r"[\u4E00-\u9FFF]{3,}"
-    pattern = re.compile(f"({katakana}|{kanji3})")
-    return list({m.group(0) for m in pattern.finditer(text or "")})
+    """Simple heuristics for JA without spaCy.
+    - Extract contiguous runs mixing Katakana and Kanji (>=3 chars)
+    This captures names such as "テスト組織サンプル" as a single surface form.
+    """
+    pattern = re.compile(r"([\u30A0-\u30FF\u4E00-\u9FFF]{3,})")
+    seen = set()
+    out: List[str] = []
+    for m in pattern.finditer(text or ""):
+        s = m.group(0)
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
 
 
 def _ensure_nlp():

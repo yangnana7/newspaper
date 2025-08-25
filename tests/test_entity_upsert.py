@@ -33,11 +33,15 @@ def test_entity_upsert_conflict_dedup(monkeypatch):
         ).fetchone()
         chunk_id = crow[0]
 
-        # Run ingest twice to simulate duplicates
-        ingest(limit=1)
-        ingest(limit=1)
+        # Commit so that the ingest() connection can see these rows
+        conn.commit()
 
-        # Count entities with that name
+    # Run ingest twice to simulate duplicates (separate connection)
+    ingest(limit=1)
+    ingest(limit=1)
+
+    # Verify and cleanup in a new connection
+    with psycopg.connect(dsn) as conn:
         er = conn.execute(
             "SELECT count(*) FROM entity WHERE attrs->>'name'=%s",
             (name,),
