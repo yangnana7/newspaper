@@ -9,7 +9,7 @@ from typing import Any, Callable, TypeVar, Union
 
 # Prometheus metrics
 try:
-    from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
     PROMETHEUS_AVAILABLE = True
     
     # Define metrics (singleton registration)
@@ -20,6 +20,10 @@ try:
     events_with_participants_total = Counter('events_with_participants_total', 'Total events recorded with participants')
     ingest_duration_seconds = Histogram('ingest_duration_seconds', 'Time spent ingesting items')
     embed_duration_seconds = Histogram('embed_duration_seconds', 'Time spent building embeddings')
+    # Additional metrics (v3)
+    search_requests_total = Counter('search_requests_total', 'Total number of search requests processed')
+    embed_latency_seconds = Histogram('embed_latency_seconds', 'Latency of embedding operations')
+    dup_ratio = Gauge('dup_ratio', 'Near-duplicate ratio of ingested documents')
 except ImportError:
     PROMETHEUS_AVAILABLE = False
     items_ingested_total = None
@@ -30,6 +34,9 @@ except ImportError:
     CONTENT_TYPE_LATEST = "text/plain"
     entities_linked_total = None
     events_with_participants_total = None
+    search_requests_total = None
+    embed_latency_seconds = None
+    dup_ratio = None
 
 
 F = TypeVar('F', bound=Callable[..., Any])
@@ -65,6 +72,21 @@ def record_event_with_participants() -> None:
     """Record that an event with participants was stored."""
     if PROMETHEUS_AVAILABLE and events_with_participants_total is not None:
         events_with_participants_total.inc()
+
+
+def record_search_request() -> None:
+    """Record that a search request occurred."""
+    if PROMETHEUS_AVAILABLE and search_requests_total is not None:
+        search_requests_total.inc()
+
+
+def set_dup_ratio(value: float) -> None:
+    """Set near-duplicate ratio gauge."""
+    if PROMETHEUS_AVAILABLE and dup_ratio is not None:
+        try:
+            dup_ratio.set(float(value))
+        except Exception:
+            pass
 
 
 def time_ingest_operation(func: F) -> F:

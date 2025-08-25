@@ -10,6 +10,11 @@ try:
     import yaml
 except ImportError:
     yaml = None
+try:
+    import tomllib  # Python 3.11+
+except Exception:  # pragma: no cover
+    tomllib = None
+import json
 
 
 def env_float(name: str, default: float) -> float:
@@ -61,6 +66,37 @@ def load_ranking_config() -> Dict[str, Any]:
         return result
     except Exception:
         return defaults
+
+
+def load_rank_fusion_overrides() -> Dict[str, Any]:
+    """Load simple rank fusion overrides from TOML or JSON.
+    Returns dict with keys: alpha, beta, gamma, half_life_hours when available.
+    """
+    cfg: Dict[str, Any] = {}
+    base = Path(__file__).parent.parent / "config"
+    # TOML takes precedence over JSON
+    toml_path = base / "ranking.toml"
+    if tomllib is not None and toml_path.exists():
+        try:
+            with open(toml_path, "rb") as f:
+                data = tomllib.load(f) or {}
+            for k in ("alpha", "beta", "gamma", "half_life_hours"):
+                if k in data:
+                    cfg[k] = float(data[k]) if k != "half_life_hours" else float(data[k])
+        except Exception:
+            pass
+    else:
+        json_path = base / "ranking.json"
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f) or {}
+                for k in ("alpha", "beta", "gamma", "half_life_hours"):
+                    if k in data:
+                        cfg[k] = float(data[k])
+            except Exception:
+                pass
+    return cfg
 
 
 def load_source_trust() -> Dict[str, float]:
@@ -135,14 +171,18 @@ def rerank_candidates(
     dist_index/published_index/source_index: indices of those fields in row
     limit: number of results to keep
     """
-    # Load configuration from YAML with environment variable fallbacks
+    # Load configuration from YAML
     config = load_ranking_config()
     weights = config["score_weights"]
-    
+    # Optional: TOML/JSON overrides for rank fusion weights
+    overrides = load_rank_fusion_overrides()
+    a0 = overrides.get("alpha", weights.get("cosine", 0.7))
+    b0 = overrides.get("beta", weights.get("recency", 0.2))
+    g0 = overrides.get("gamma", weights.get("source_trust", 0.1))
     # Environment variables take precedence for backward compatibility
-    a = env_float("RANK_ALPHA", weights.get("cosine", 0.7))
-    b = env_float("RANK_BETA", weights.get("recency", 0.2))
-    g = env_float("RANK_GAMMA", weights.get("source_trust", 0.1))
+    a = env_float("RANK_ALPHA", a0)
+    b = env_float("RANK_BETA", b0)
+    g = env_float("RANK_GAMMA", g0)
     dlt = env_float("RANK_DELTA", weights.get("language", 0.0))
     
     ssum = a + b + g + dlt
@@ -151,7 +191,8 @@ def rerank_candidates(
         ssum = 1.0
     a, b, g, dlt = a / ssum, b / ssum, g / ssum, dlt / ssum
     
-    hl = env_float("RECENCY_HALFLIFE_HOURS", config["recency_half_life_hours"])
+    hl0 = overrides.get("half_life_hours", config["recency_half_life_hours"])
+    hl = env_float("RECENCY_HALFLIFE_HOURS", hl0)
     trust_map = load_source_trust()
     lang_map = load_language_trust()
     trust_default = env_float("SOURCE_TRUST_DEFAULT", config["source_trust"]["default"])

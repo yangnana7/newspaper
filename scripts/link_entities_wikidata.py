@@ -7,7 +7,10 @@ import os
 import time
 from typing import Optional, Tuple, Dict, Any, Set
 
-import psycopg
+try:
+    import psycopg  # type: ignore
+except Exception:
+    psycopg = None  # type: ignore
 import requests
 try:
     import yaml  # type: ignore
@@ -99,6 +102,8 @@ def fetch_qid_with_confidence(name: str, lang: str = "ja") -> Tuple[Optional[str
 
 
 def _connect():
+    if psycopg is None:
+        raise RuntimeError("psycopg is required for DB operations")
     dsn = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
     return psycopg.connect(dsn)
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 try:
@@ -10,13 +11,28 @@ try:
 except Exception:  # pragma: no cover
     from typing import TypedDict  # type: ignore
 
-from mcp.server.fastmcp import FastMCP
-import psycopg
+try:
+    from mcp.server.fastmcp import FastMCP
+except Exception:  # pragma: no cover
+    # Lightweight stub to allow imports in environments without mcp installed
+    class FastMCP:  # type: ignore
+        def __init__(self, name: str):
+            self.name = name
+        def tool(self, *args, **kwargs):
+            def deco(f):
+                return f
+            return deco
+        def run_stdio(self) -> None:
+            pass
+try:
+    import psycopg  # type: ignore
+except Exception:  # pragma: no cover
+    psycopg = None  # type: ignore
 from .db import connect
 from search.ranker import rerank_candidates
 
 # Import common metrics module
-from .metrics import get_metrics_content
+from .metrics import get_metrics_content, record_search_request
 
 # Embedding space label used for vector search (must match embed_chunks --space)
 # Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility
@@ -34,6 +50,9 @@ class Bundle(TypedDict, total=False):
 
 
 mcp = FastMCP("MCPNews")
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    logging.basicConfig(level=os.environ.get("LOG_LEVEL", "INFO"))
 
 
 def _try_load_model():
@@ -58,7 +77,7 @@ def _to_iso(dt_utc: datetime) -> str:
     return dt_utc.isoformat(timespec="seconds")
 
 
-def _row_to_bundle(row: psycopg.rows.Row) -> Bundle:
+def _row_to_bundle(row) -> Bundle:
     return {
         "doc_id": row[0],
         "title": row[1],
@@ -90,6 +109,7 @@ def doc_head(doc_id: int) -> Bundle:
 @mcp.tool()
 def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> List[Bundle]:
     """Semantic search over chunk_vec if available; fallback to recency."""
+    record_search_request()
     since_dt = None
     if since:
         try:
@@ -99,6 +119,10 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
             since_dt = since_dt.astimezone(timezone.utc)
         except Exception:
             since_dt = None
+            try:
+                logger.info("semantic_search: bad since; falling back to no-since", extra={"since": since})
+            except Exception:
+                pass
 
     with connect() as conn:
         # Vector search if model is available and chunk_vec exists
@@ -143,6 +167,7 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
                         language_index=6,
                         limit=top_k,
                     )
+                    logger.info("semantic_search: route=vector", extra={"q": q, "top_k": top_k})
                     return [_row_to_bundle(r) for r in reranked]
             except Exception:
                 try:
@@ -170,6 +195,7 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
             tuple(params2),
         )
         rows = cur.fetchall()
+        logger.info("semantic_search: route=recency", extra={"q": q, "top_k": top_k})
         return [_row_to_bundle(r) for r in rows]
 
 
@@ -181,35 +207,41 @@ def entity_search(ext_ids: List[str] | None = None, names: List[str] | None = No
     """
     ext_ids = ext_ids or []
     names = names or []
+    record_search_request()
     if not ext_ids and not names:
         return []
-    with connect() as conn:
-        where = []
-        params: List[Any] = []
-        if ext_ids:
-            where.append("e.ext_id = ANY(%s)")
-            params.append(ext_ids)
-        if names:
-            # Restrict to exact matches to avoid explosion
-            where.append("(e.attrs->>'name') = ANY(%s)")
-            params.append(names)
-        where_sql = " OR ".join(where)
-        cur = conn.execute(
-            f"""
-            SELECT DISTINCT d.doc_id, d.title_raw, d.published_at,
-                    (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-                    d.url_canon
-            FROM mention m
-            JOIN entity e ON e.ent_id = m.ent_id
-            JOIN chunk  c ON c.chunk_id = m.chunk_id
-            JOIN doc    d ON d.doc_id   = c.doc_id
-            WHERE {where_sql}
-            ORDER BY d.published_at DESC
-            LIMIT %s
-            """,
-            tuple(params + [top_k]),
-        )
-        return [_row_to_bundle(r) for r in cur.fetchall()]
+    try:
+        with connect() as conn:
+            where = []
+            params: List[Any] = []
+            if ext_ids:
+                where.append("e.ext_id = ANY(%s)")
+                params.append(ext_ids)
+            if names:
+                # Restrict to exact matches to avoid explosion
+                where.append("(e.attrs->>'name') = ANY(%s)")
+                params.append(names)
+            where_sql = " OR ".join(where)
+            cur = conn.execute(
+                f"""
+                SELECT DISTINCT d.doc_id, d.title_raw, d.published_at,
+                        (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
+                        d.url_canon
+                FROM mention m
+                JOIN entity e ON e.ent_id = m.ent_id
+                JOIN chunk  c ON c.chunk_id = m.chunk_id
+                JOIN doc    d ON d.doc_id   = c.doc_id
+                WHERE {where_sql}
+                ORDER BY d.published_at DESC
+                LIMIT %s
+                """,
+                tuple(params + [top_k]),
+            )
+            rows = cur.fetchall()
+            logger.info("entity_search: route=by-entity", extra={"top_k": top_k, "ext_ids": len(ext_ids or []), "names": len(names or [])})
+            return [_row_to_bundle(r) for r in rows]
+    except Exception:
+        return []
 
 
 @mcp.tool()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 """
 Entity Linking stub.
 
@@ -16,7 +17,10 @@ import re
 import json
 from typing import Iterable, List, Tuple
 
-import psycopg
+try:  # Optional during tests without DB
+    import psycopg  # type: ignore
+except Exception:
+    psycopg = None  # type: ignore
 
 
 def extract_terms(text: str, max_terms: int = 12) -> List[Tuple[str, int, int, str]]:
@@ -104,7 +108,7 @@ def extract_terms(text: str, max_terms: int = 12) -> List[Tuple[str, int, int, s
     return out
 
 
-def upsert_entity(conn: psycopg.Connection, ext_id: str, kind: str = "token", attrs: dict | None = None) -> int:
+def upsert_entity(conn: "psycopg.Connection", ext_id: str, kind: str = "token", attrs: dict | None = None) -> int:
     cur = conn.execute(
         """
         INSERT INTO entity (ext_id, kind, attrs)
@@ -122,7 +126,7 @@ def upsert_entity(conn: psycopg.Connection, ext_id: str, kind: str = "token", at
     return int(row2[0]) if row2 else -1
 
 
-def process_chunks(conn: psycopg.Connection, limit: int = 100) -> int:
+def process_chunks(conn: "psycopg.Connection", limit: int = 100) -> int:
     sql = (
         """
         SELECT c.chunk_id, c.text_raw
@@ -172,7 +176,9 @@ def process_chunks(conn: psycopg.Connection, limit: int = 100) -> int:
 
 
 def main():
-    dsn = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
+    if psycopg is None:
+        raise SystemExit("psycopg is required to run this script")
+    dsn = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
     limit = int(os.environ.get("STUB_LIMIT", "100"))
     with psycopg.connect(dsn) as conn:
         conn.execute("SET TIME ZONE 'UTC'")

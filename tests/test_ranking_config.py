@@ -40,3 +40,26 @@ def test_language_trust_loading_and_default():
     assert "language_trust" in c
     lt = load_language_trust()
     assert isinstance(lt, dict)
+
+
+def test_ranking_toml_overrides_and_recency_monotonic(monkeypatch):
+    # Ensure env vars do not override file settings in this test
+    for k in ["RANK_ALPHA", "RANK_BETA", "RANK_GAMMA", "RECENCY_HALFLIFE_HOURS"]:
+        monkeypatch.delenv(k, raising=False)
+
+    from search.ranker import rerank_candidates, load_rank_fusion_overrides
+    ov = load_rank_fusion_overrides()
+    # Should see keys from config/ranking.toml
+    assert isinstance(ov, dict)
+    assert "alpha" in ov and "beta" in ov and "gamma" in ov
+
+    # Build two fake rows: same distance and source, different published_at
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    r_new = (1, "t", now, None, "u", "src", "ja", 0.5)  # dist=0.5
+    r_old = (2, "t", now - timedelta(days=7), None, "u", "src", "ja", 0.5)
+    rows = [r_old, r_new]
+
+    ranked = rerank_candidates(rows, dist_index=7, published_index=2, source_index=5, language_index=6, limit=2)
+    # Newer should come first when recency weight > 0
+    assert ranked[0][0] == 1

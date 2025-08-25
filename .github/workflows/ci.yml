@@ -38,3 +38,8 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+      - name: Check vector index (skipped when SKIP_DB_TESTS=1)
+        if: env.SKIP_DB_TESTS != '1'
+        run: |
+          psql "$DATABASE_URL" -c "\\d+ chunk_vec" | rg hnsw
