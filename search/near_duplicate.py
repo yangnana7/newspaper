@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from typing import Iterable, List, Tuple, Dict, Set
+import hashlib
 
 
 _RE_ALNUM = re.compile(r"[A-Za-z0-9]+", re.UNICODE)
@@ -32,13 +33,17 @@ def _token_set(text: str) -> Set[str]:
 
 
 def simhash64(text: str) -> int:
-    """Compute a 64-bit SimHash from text shingles."""
+    """Compute a deterministic 64-bit SimHash from text shingles.
+    Uses SHA-256-derived 64-bit integers per shingle to avoid Python's
+    randomized hash() behavior across processes.
+    """
     feats = _shingles(text, 3)
     if not feats:
         return 0
     v = [0] * 64
     for f in feats:
-        h = hash(f) & ((1 << 64) - 1)
+        # Deterministic 64-bit feature hash from SHA-256 (first 8 bytes)
+        h = int.from_bytes(hashlib.sha256(f.encode("utf-8")).digest()[:8], "big")
         for i in range(64):
             bit = 1 if (h >> i) & 1 else -1
             v[i] += bit

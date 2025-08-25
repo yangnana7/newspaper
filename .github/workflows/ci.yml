@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_DB: newshub
           POSTGRES_USER: postgres
@@ -27,6 +27,7 @@ jobs:
       APP_BIND_HOST: 127.0.0.1
       APP_BIND_PORT: '3011'
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/newshub
+      EMBED_SPACE: e5-multilingual
       CI: "true"
       # Where to write progress file for linking (use /tmp for portability)
       PROGRESS_FILE: /tmp/linking.progress
@@ -59,4 +60,4 @@ jobs:
 
       - name: Check vector index
         run: |
-          psql "$DATABASE_URL" -c "\\d+ chunk_vec" | rg -n hnsw || true
+          psql "$DATABASE_URL" -c "\\d+ chunk_vec" | grep -E 'hnsw' || true
