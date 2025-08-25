@@ -54,8 +54,9 @@ def ingest(limit: int = 1000) -> int:
                     ).fetchone()
                     if not row2:
                         # As a last resort, insert again without ON CONFLICT to raise if truly missing
+                        # Ensure parameter is typed for Postgres (avoid IndeterminateDatatype)
                         row2 = conn.execute(
-                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s::text)) RETURNING ent_id",
                             (surf,),
                         ).fetchone()
                     ent_id = row2[0]
