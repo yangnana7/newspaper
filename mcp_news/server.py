@@ -29,10 +29,14 @@ try:
 except Exception:  # pragma: no cover
     psycopg = None  # type: ignore
 from .db import connect
+from .config_guard import require_fixed_env
 from search.ranker import rerank_candidates
 
 # Import common metrics module
 from .metrics import get_metrics_content, record_search_request
+
+# Enforce fixed environment at import time (fail fast on policy violations)
+require_fixed_env()
 
 # Embedding space label used for vector search (must match embed_chunks --space)
 # Accept both EMBED_SPACE and legacy EMBEDDING_SPACE for compatibility

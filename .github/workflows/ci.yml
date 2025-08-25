@@ -28,6 +28,8 @@ jobs:
       APP_BIND_PORT: '3011'
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/newshub
       EMBED_SPACE: e5-multilingual
+      EMBEDDING_SPACE: e5-multilingual
+      UI_ENABLED: '0'
       CI: "true"
       # Where to write progress file for linking (use /tmp for portability)
       PROGRESS_FILE: /tmp/linking.progress
