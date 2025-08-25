@@ -150,6 +150,80 @@ def api_search_sem(
             # 最後まで失敗した場合は空
             return []
 
+# 最小限のイベント一覧エンドポイント（JSTで時刻を返す）
+@app.get("/api/events")
+def api_events(
+    limit: int = Query(200, ge=1, le=500),
+    type_id: Optional[str] = None,
+    participant_ext_id: Optional[str] = None,
+    loc_geohash: Optional[str] = None,
+):
+    conds = []
+    params = []
+    if type_id:
+        conds.append("e.type_id = %s")
+        params.append(type_id)
+    if participant_ext_id:
+        conds.append("e.event_id IN (SELECT ep.event_id FROM event_participant ep JOIN entity en ON en.ent_id=ep.ent_id WHERE en.ext_id=%s)")
+        params.append(participant_ext_id)
+    if loc_geohash:
+        conds.append("e.loc_geohash = %s")
+        params.append(loc_geohash)
+    params.append(limit)
+    where_sql = ("WHERE " + " AND ".join(conds)) if conds else ""
+    sql = f"""
+      SELECT e.event_id, e.type_id, e.t_start, e.t_end, e.loc_geohash
+      FROM event e
+      {where_sql}
+      ORDER BY e.t_start DESC NULLS LAST, e.event_id DESC
+      LIMIT %s
+    """
+    def to_iso_jst(dt):
+        if dt is None:
+            return None
+        try:
+            return dt.astimezone(JST).isoformat(timespec="seconds")
+        except Exception:
+            return None
+
+    with psycopg.connect(DATABASE_URL) as conn:
+        rows = conn.execute(sql, tuple(params)).fetchall()
+        out = []
+        for r in rows:
+            item = {
+                "event_id": r[0],
+                "type_id": r[1],
+                "t_start": to_iso_jst(r[2]),
+                "t_end": to_iso_jst(r[3]),
+                "loc_geohash": r[4],
+            }
+            # participants
+            try:
+                pr = conn.execute(
+                    """
+                    SELECT en.ext_id, COALESCE(en.attrs->>'name','') AS name
+                    FROM event_participant ep
+                    JOIN entity en ON en.ent_id = ep.ent_id
+                    WHERE ep.event_id=%s
+                    ORDER BY en.ent_id
+                    """,
+                    (r[0],),
+                ).fetchall()
+                item["participants"] = [{"ext_id": p[0], "name": p[1]} for p in pr]
+            except Exception:
+                item["participants"] = []
+            # evidence docs
+            try:
+                dr = conn.execute(
+                    "SELECT doc_id FROM evidence WHERE event_id=%s ORDER BY doc_id",
+                    (r[0],),
+                ).fetchall()
+                item["doc_ids"] = [d[0] for d in dr]
+            except Exception:
+                item["doc_ids"] = []
+            out.append(item)
+        return out
+
 # Prometheus metrics endpoint
 @app.get("/metrics")
 def metrics():

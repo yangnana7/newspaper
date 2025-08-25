@@ -18,6 +18,9 @@ jobs:
       DATABASE_URL: postgresql://127.0.0.1/newshub
       CI: "true"
       SKIP_DB_TESTS: "1"
+      # Where to write progress file for linking (ephemeral per run)
+      PROGRESS_FILE: ${{ runner.temp }}/linking.progress
+      LINK_PROGRESS_FILE: ${{ runner.temp }}/linking.progress
     steps:
       - name: Checkout
         uses: actions/checkout@v4

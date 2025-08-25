@@ -25,7 +25,8 @@ def _load_linking_config() -> Dict[str, Any]:
         "max_retries": 2,
         "blacklist_keywords": ["曖昧さ回避", "disambiguation"],
         "prefer_lang": os.environ.get("WIKIDATA_LANG", "ja"),
-        "progress_file": os.environ.get("LINK_PROGRESS_FILE", "tmp/linking_progress.txt"),
+        # Support either LINK_PROGRESS_FILE or PROGRESS_FILE env name
+        "progress_file": os.environ.get("LINK_PROGRESS_FILE") or os.environ.get("PROGRESS_FILE") or "tmp/linking_progress.txt",
     }
     if yaml is None:
         return cfg
