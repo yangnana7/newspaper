@@ -1,3 +1,9 @@
+import os
+import json
+import zoneinfo
+from typing import Optional
+
+# Optional fastapi import; provide stubs so module remains importable without FastAPI
 try:
     from fastapi import FastAPI, Query
     from fastapi.responses import HTMLResponse, PlainTextResponse
@@ -5,34 +11,46 @@ try:
     FASTAPI_AVAILABLE = True
 except Exception:  # pragma: no cover
     FASTAPI_AVAILABLE = False
-    # Minimal fallbacks to allow import without FastAPI installed
-    def Query(default, **kwargs):
-        return default
-    class FastAPI:  # type: ignore
+
+    class _AppStub:  # minimal decorator-compatible stub
         def __init__(self, *args, **kwargs):
             pass
         def get(self, *args, **kwargs):
-            def deco(f):
+            def _deco(f):
                 return f
-            return deco
+            return _deco
+        def mount(self, *args, **kwargs):
+            return None
+
+    def Query(*args, **kwargs):  # type: ignore
+        return None
+
     class HTMLResponse:  # type: ignore
         pass
+
     class PlainTextResponse:  # type: ignore
-        def __init__(self, content, media_type=None):
-            self.content = content
-            self.media_type = media_type
+        pass
+
     class StaticFiles:  # type: ignore
         def __init__(self, *args, **kwargs):
             pass
-import os, json
+
+    FastAPI = _AppStub  # type: ignore
+
+# Optional psycopg import (DB endpoints will gracefully return [])
 try:
     import psycopg  # type: ignore
 except Exception:  # pragma: no cover
     psycopg = None  # type: ignore
-from datetime import timezone
-import zoneinfo
-from typing import Optional
-from pgvector.psycopg import Vector, register_vector
+
+# Optional pgvector import (graceful fallback when unavailable)
+try:
+    from pgvector.psycopg import Vector, register_vector  # type: ignore
+except Exception:  # pragma: no cover
+    Vector = None  # type: ignore
+    def register_vector(conn):  # type: ignore
+        return None
+
 from search.ranker import rerank_candidates
 
 # Import common metrics module
@@ -46,10 +64,12 @@ from mcp_news.metrics import (
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
 
-app = FastAPI(title="MCP News – Minimal UI")
+app = FastAPI(title="MCP News – Minimal UI")  # type: ignore
 # Avoid startup failure when static dir is absent during tests/CI
-if FASTAPI_AVAILABLE:
-    app.mount("/static", StaticFiles(directory="web/static", check_dir=False), name="static")
+try:
+    app.mount("/static", StaticFiles(directory="web/static", check_dir=False), name="static")  # type: ignore
+except Exception:
+    pass
 
 def row_to_dict(r):
     # r: doc_id, title_raw, published_at(UTC), genre_hint, url_canon, source
@@ -139,7 +159,7 @@ def api_search_sem(
             raise RuntimeError("psycopg not available")
         with psycopg.connect(DATABASE_URL) as conn:
             register_vector(conn)
-            if q:
+            if q and Vector is not None:
                 try:
                     vec = json.loads(q)
                 except Exception:

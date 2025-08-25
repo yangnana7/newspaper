@@ -18,7 +18,8 @@
 - Dependencies are in `requirements.txt` (includes `fastapi` and `uvicorn`).
 - Run locally (bind to localhost only):
   - `mkdir -p web/static`
-  - `uvicorn web.app:app --host 127.0.0.1 --port 3011`
+  - `UI_ENABLED=1 uvicorn web.app:app --host 127.0.0.1 --port 3011`
+  - Note: UI is disabled by default (MCP-First). Set `UI_ENABLED=1` to enable `/` during development; otherwise `/` returns 404. API endpoints are always available.
 - Endpoints:
   - `GET /api/latest?limit=50`
   - `GET /api/search?q=keyword&limit=50&offset=0`
