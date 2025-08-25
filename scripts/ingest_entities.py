@@ -62,7 +62,11 @@ def ingest(limit: int = 1000) -> int:
                     ent_id = row2[0]
 
                 conn.execute(
-                    "INSERT INTO mention (chunk_id, ent_id, span, conf) VALUES (%s, %s, NULL, 1.0) ON CONFLICT DO NOTHING",
+                    (
+                        "INSERT INTO mention (chunk_id, ent_id, span, conf) "
+                        "VALUES (%s, %s, int4range(0,0), 1.0) "
+                        "ON CONFLICT DO NOTHING"
+                    ),
                     (cid, ent_id),
                 )
                 count += 1
