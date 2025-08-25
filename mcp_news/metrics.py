@@ -15,6 +15,9 @@ try:
     # Define metrics (singleton registration)
     items_ingested_total = Counter('items_ingested_total', 'Total number of items ingested')
     embeddings_built_total = Counter('embeddings_built_total', 'Total number of embeddings built')
+    # New metrics for entity linking and events
+    entities_linked_total = Counter('entities_linked_total', 'Total number of entities linked to external IDs')
+    events_with_participants_total = Counter('events_with_participants_total', 'Total events recorded with participants')
     ingest_duration_seconds = Histogram('ingest_duration_seconds', 'Time spent ingesting items')
     embed_duration_seconds = Histogram('embed_duration_seconds', 'Time spent building embeddings')
 except ImportError:
@@ -25,6 +28,8 @@ except ImportError:
     embed_duration_seconds = None
     generate_latest = None
     CONTENT_TYPE_LATEST = "text/plain"
+    entities_linked_total = None
+    events_with_participants_total = None
 
 
 F = TypeVar('F', bound=Callable[..., Any])
@@ -48,6 +53,18 @@ def record_embedding_built() -> None:
     """Record that an embedding was built."""
     if PROMETHEUS_AVAILABLE and embeddings_built_total is not None:
         embeddings_built_total.inc()
+
+
+def record_entity_linked() -> None:
+    """Record that an entity was linked to an external ID."""
+    if PROMETHEUS_AVAILABLE and entities_linked_total is not None:
+        entities_linked_total.inc()
+
+
+def record_event_with_participants() -> None:
+    """Record that an event with participants was stored."""
+    if PROMETHEUS_AVAILABLE and events_with_participants_total is not None:
+        events_with_participants_total.inc()
 
 
 def time_ingest_operation(func: F) -> F:

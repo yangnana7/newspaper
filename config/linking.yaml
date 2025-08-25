@@ -1,0 +1,9 @@
+min_confidence: 0.6
+requests_per_sec: 2.0
+max_retries: 2
+prefer_lang: ja
+blacklist_keywords:
+  - 曖昧さ回避
+  - disambiguation
+progress_file: tmp/linking_progress.txt
+

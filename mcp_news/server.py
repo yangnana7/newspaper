@@ -174,12 +174,28 @@ def semantic_search(q: str, top_k: int = 50, since: Optional[str] = None) -> Lis
 
 
 @mcp.tool()
-def entity_search(ext_ids: List[str], top_k: int = 50) -> List[Bundle]:
-    if not ext_ids:
+def entity_search(ext_ids: List[str] | None = None, names: List[str] | None = None, top_k: int = 50) -> List[Bundle]:
+    """Search docs by linked entities.
+    - ext_ids: list of external IDs (e.g., QIDs)
+    - names: list of exact surface names (when ext_id is not available)
+    """
+    ext_ids = ext_ids or []
+    names = names or []
+    if not ext_ids and not names:
         return []
     with connect() as conn:
+        where = []
+        params: List[Any] = []
+        if ext_ids:
+            where.append("e.ext_id = ANY(%s)")
+            params.append(ext_ids)
+        if names:
+            # Restrict to exact matches to avoid explosion
+            where.append("(e.attrs->>'name') = ANY(%s)")
+            params.append(names)
+        where_sql = " OR ".join(where)
         cur = conn.execute(
-            """
+            f"""
             SELECT DISTINCT d.doc_id, d.title_raw, d.published_at,
                     (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
                     d.url_canon
@@ -187,11 +203,11 @@ def entity_search(ext_ids: List[str], top_k: int = 50) -> List[Bundle]:
             JOIN entity e ON e.ent_id = m.ent_id
             JOIN chunk  c ON c.chunk_id = m.chunk_id
             JOIN doc    d ON d.doc_id   = c.doc_id
-            WHERE e.ext_id = ANY(%s)
+            WHERE {where_sql}
             ORDER BY d.published_at DESC
             LIMIT %s
             """,
-            (ext_ids, top_k),
+            tuple(params + [top_k]),
         )
         return [_row_to_bundle(r) for r in cur.fetchall()]
 
@@ -202,9 +218,11 @@ def event_timeline(
     top_k: int = 200,
 ) -> List[Dict[str, Any]]:
     ext_id = filter.get("ext_id") if filter else None
+    participant_ext_id = filter.get("participant_ext_id") if filter else None
     type_id = filter.get("type_id") if filter else None
     t_from = filter.get("time", {}).get("from") if filter else None
     t_to = filter.get("time", {}).get("to") if filter else None
+    loc_geohash = filter.get("loc_geohash") if filter else None
 
     params: List[Any] = []
     where: List[str] = []
@@ -220,6 +238,12 @@ def event_timeline(
     if ext_id:
         where.append("e.event_id IN (SELECT ep.event_id FROM event_participant ep JOIN entity en ON en.ent_id=ep.ent_id WHERE en.ext_id=%s)")
         params.append(ext_id)
+    if participant_ext_id:
+        where.append("e.event_id IN (SELECT ep.event_id FROM event_participant ep JOIN entity en ON en.ent_id=ep.ent_id WHERE en.ext_id=%s)")
+        params.append(participant_ext_id)
+    if loc_geohash:
+        where.append("e.loc_geohash = %s")
+        params.append(loc_geohash)
     where_sql = ("WHERE " + " AND ".join(where)) if where else ""
 
     sql = f"SELECT e.event_id, e.type_id, e.t_start, e.t_end, e.loc_geohash FROM event e {where_sql} ORDER BY e.t_start NULLS LAST, e.event_id LIMIT %s"
