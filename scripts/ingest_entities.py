@@ -31,19 +31,35 @@ def ingest(limit: int = 1000) -> int:
             ents: List[str] = extract_entities(text or "")
             # Placeholder: simply record entities into entity table if absent
             for surf in ents:
-                # Try find existing by name
+                # Prefer single upsert-style INSERT with ON CONFLICT DO NOTHING
+                # Note: unique index on (attrs->>'name') exists as uq_entity_name
+                # Expression indexes cannot be referenced directly in ON CONFLICT, so
+                # we use DO NOTHING and then read back the existing ID if needed.
                 row = conn.execute(
-                    "SELECT ent_id FROM entity WHERE attrs->>'name' = %s",
+                    """
+                    INSERT INTO entity (ext_id, kind, attrs)
+                    VALUES (NULL, NULL, jsonb_build_object('name', %s))
+                    ON CONFLICT DO NOTHING
+                    RETURNING ent_id
+                    """,
                     (surf,),
                 ).fetchone()
-                if row:
+                if row is not None:
                     ent_id = row[0]
                 else:
-                    e = conn.execute(
-                        "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                    # Fetch existing row by name
+                    row2 = conn.execute(
+                        "SELECT ent_id FROM entity WHERE attrs->>'name' = %s",
                         (surf,),
                     ).fetchone()
-                    ent_id = e[0]
+                    if not row2:
+                        # As a last resort, insert again without ON CONFLICT to raise if truly missing
+                        row2 = conn.execute(
+                            "INSERT INTO entity (ext_id, kind, attrs) VALUES (NULL, NULL, jsonb_build_object('name', %s)) RETURNING ent_id",
+                            (surf,),
+                        ).fetchone()
+                    ent_id = row2[0]
+
                 conn.execute(
                     "INSERT INTO mention (chunk_id, ent_id, span, conf) VALUES (%s, %s, NULL, 1.0) ON CONFLICT DO NOTHING",
                     (cid, ent_id),

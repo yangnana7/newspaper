@@ -12,6 +12,8 @@ curl http://127.0.0.1:3011/metrics
 #### Counter（累積カウンタ）
 - `items_ingested_total` - 取り込み済みアイテム数
 - `embeddings_built_total` - 作成済み埋め込み数
+- `entities_linked_total` - 外部IDにリンク済みのエンティティ数
+- `events_with_participants_total` - 参加者付きで登録されたイベント数
 
 #### Histogram（処理時間分布）
 - `ingest_duration_seconds` - データ取り込み処理時間
