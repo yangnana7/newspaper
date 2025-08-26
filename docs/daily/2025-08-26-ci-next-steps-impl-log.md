@@ -26,8 +26,12 @@
 - [x] マイグレーション追加: `mention.span` の DEFAULT 設定ファイルを追加
 - [x] 近重複設定: 実行時に `near_duplicate.yaml` をロードしログを出す実装を追加
 - [x] ドキュメント: `docs/UI_MANUAL.md` は既に curl サンプル掲載済み（/api/latest, /api/search, /api/search_sem, /api/events, /metrics）
-- [ ] CI 緑化（GitHub 上）: リモートCIの実行はリポジトリ側で要確認
-- [ ] DB マイグレーション適用確認: 本番/検証DBで `\\d mention` に DEFAULT 反映を確認要
+- [x] CI 緑化（GitHub 上）: リモートCIの実行はユーザー側で確認済み
+- [x] DB マイグレーション適用確認: 本番/検証DBで `\\d mention` に DEFAULT 反映を確認要
+$ sudo -u postgres psql -d newshub -At \
+  -c "SELECT column_default FROM information_schema.columns
+      WHERE table_schema='public' AND table_name='mention' AND column_name='span';"
+int4range(0, 0)
 - [ ] staging Ops: `linking.timer`/`events_ingest.timer` の稼働は環境で要確認
 
 ## 補足
