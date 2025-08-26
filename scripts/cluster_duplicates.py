@@ -7,7 +7,8 @@ import os
 import psycopg
 from typing import List, Tuple
 
-from search.near_duplicate import cluster_by_simhash
+from search.near_duplicate import cluster_by_simhash, load_thresholds_from_yaml
+import logging
 
 
 def _connect():
@@ -26,14 +27,24 @@ def ensure_table(conn) -> None:
     )
 
 
-def run(limit: int = 2000, threshold: int = 3) -> int:
+def run(limit: int = 2000, threshold: int | None = None) -> int:
     with _connect() as conn:
         ensure_table(conn)
         rows: List[Tuple[int, str]] = conn.execute(
             "SELECT doc_id, COALESCE(title_raw,'') FROM doc ORDER BY doc_id DESC LIMIT %s",
             (limit,),
         ).fetchall()
-        clusters = cluster_by_simhash(rows, threshold=threshold)
+        # Load thresholds from YAML (optional override)
+        sim_max, jac_min = load_thresholds_from_yaml()
+        th = threshold if isinstance(threshold, int) else sim_max
+        try:
+            logging.getLogger(__name__).info(
+                "cluster_duplicates thresholds",
+                extra={"simhash_hamming_max": th, "jaccard_min": jac_min},
+            )
+        except Exception:
+            pass
+        clusters = cluster_by_simhash(rows, threshold=th, jaccard_threshold=jac_min)
         # Flatten and upsert
         n = 0
         for cid, doc_ids in clusters.items():
@@ -58,4 +69,3 @@ def run(limit: int = 2000, threshold: int = 3) -> int:
 if __name__ == "__main__":
     m = run()
     print(f"dup_rows_written={m}")
-

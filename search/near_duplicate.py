@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import re
-from typing import Iterable, List, Tuple, Dict, Set
+from typing import Iterable, List, Tuple, Dict, Set, Optional
 import hashlib
+import os
+import logging
+
+try:
+    import yaml  # type: ignore
+except Exception:  # pragma: no cover
+    yaml = None  # type: ignore
 
 
 _RE_ALNUM = re.compile(r"[A-Za-z0-9]+", re.UNICODE)
@@ -96,3 +103,49 @@ def cluster_by_simhash(
                         clusters[cid].append(doc_j)
                         used.add(doc_j)
     return clusters
+
+
+# --- Config loader for thresholds (optional externalization) ---
+_LOG = logging.getLogger(__name__)
+
+
+def load_thresholds_from_yaml(path: Optional[str] = None) -> Tuple[int, float]:
+    """Load SimHash/Jaccard thresholds from YAML if available.
+    Returns (simhash_hamming_max, jaccard_min). Falls back to defaults when missing.
+    Emits an info log when a config file is successfully loaded.
+    """
+    default_simhash = 3
+    default_jaccard = 0.4
+    cfg_path = path or os.path.join("config", "near_duplicate.yaml")
+    try:
+        if yaml is None:
+            return default_simhash, default_jaccard
+        if not os.path.exists(cfg_path):
+            return default_simhash, default_jaccard
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        simhash_hamming_max = int(data.get("simhash_hamming_max", default_simhash))
+        jaccard_min = float(data.get("jaccard_min", default_jaccard))
+        try:
+            _LOG.info(
+                "near_duplicate.yaml loaded",
+                extra={
+                    "simhash_hamming_max": simhash_hamming_max,
+                    "jaccard_min": jaccard_min,
+                    "path": cfg_path,
+                },
+            )
+        except Exception:
+            pass
+        return simhash_hamming_max, jaccard_min
+    except Exception:
+        return default_simhash, default_jaccard
+
+
+def cluster_by_simhash_with_config(
+    items: Iterable[Tuple[int, str]],
+    yaml_path: Optional[str] = None,
+) -> Dict[int, List[int]]:
+    """Cluster using thresholds loaded from config/near_duplicate.yaml when present."""
+    sim_max, jac_min = load_thresholds_from_yaml(yaml_path)
+    return cluster_by_simhash(items, threshold=sim_max, jaccard_threshold=jac_min)

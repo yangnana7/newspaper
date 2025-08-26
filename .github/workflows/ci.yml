@@ -59,7 +59,12 @@ jobs:
           for f in db/migrations/*.sql; do if [ -f "$f" ]; then psql postgresql://postgres:postgres@localhost:5432/newshub -f "$f"; fi; done
 
       - name: Run tests
-        run: pytest -q
+        run: pytest -x --maxfail=1 -q 2>&1 | tee ci_fail.log; test ${PIPESTATUS[0]} -eq 0
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ci-fail-log
+          path: ci_fail.log
 
       - name: Check vector index
         run: |
