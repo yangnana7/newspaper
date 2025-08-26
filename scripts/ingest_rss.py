@@ -7,6 +7,7 @@ import hashlib
 import urllib.parse as urlparse
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from typing import Any
 
 import feedparser
 import psycopg
@@ -49,9 +50,21 @@ def to_utc(dt_like) -> datetime:
         return datetime.now(timezone.utc)
 
 
-def load_feeds(path: str):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_feeds(path: str) -> list[dict[str, Any]]:
+    try:
+        # utf-8-sigでBOM混入も許容
+        with open(path, "r", encoding="utf-8-sig") as f:
+            feeds = json.load(f)
+    except FileNotFoundError:
+        raise SystemExit(f"[feeds.json] not found: {path}")
+    except json.JSONDecodeError as e:
+        raise SystemExit(f"[feeds.json] invalid JSON at {path}: {e}")
+    if not isinstance(feeds, list):
+        raise SystemExit(f"[feeds.json] must be a list of objects, got {type(feeds).__name__}")
+    for i, it in enumerate(feeds, 1):
+        if not isinstance(it, dict) or "url" not in it:
+            raise SystemExit(f"[feeds.json] item#{i} is not valid: {it!r}")
+    return feeds
 
 
 def main():
