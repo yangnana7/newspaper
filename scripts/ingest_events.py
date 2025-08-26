@@ -4,12 +4,53 @@ Ingest events extracted from chunk text using scripts/event_extract.py.
 DB access occurs only when this script is executed.
 """
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timezone
 
 import psycopg
 
 from .event_extract import extract_events
 from .entity_link import extract_entities
+
+
+def _parse_ts(value: Any) -> Optional[datetime]:
+    """Best-effort parse to UTC timestamptz acceptable by Postgres.
+    Returns None on invalid/unsupported values.
+    - Accepts datetime or ISO-like strings. Handles trailing 'Z'.
+    - Filters out year 0 and other out-of-range values to avoid PG errors.
+    """
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        try:
+            s = str(value).strip()
+            if not s:
+                return None
+            # Normalize trailing 'Z' to +00:00 for fromisoformat
+            if s.endswith("Z"):
+                s = s[:-1] + "+00:00"
+            # Try parse; fallback to simple YYYY-MM-DD case
+            try:
+                dt = datetime.fromisoformat(s)
+            except Exception:
+                # Minimal fallback: take date part only
+                try:
+                    dt = datetime.fromisoformat(s.split("T")[0])
+                except Exception:
+                    return None
+        except Exception:
+            return None
+    # Ensure tz-aware UTC
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+    # Postgres has no year 0; guard against pathological dates
+    if dt.year <= 0:
+        return None
+    return dt
 
 
 def _connect():
@@ -27,9 +68,11 @@ def ingest(limit: int = 1000) -> int:
         for cid, text in rows:
             events: List[Dict[str, Any]] = extract_events(text or "")
             for ev in events:
+                t_start = _parse_ts(ev.get("t_start"))
+                t_end = _parse_ts(ev.get("t_end"))
                 r = conn.execute(
                     "INSERT INTO event (type_id, t_start, t_end, loc_geohash, attrs) VALUES (%s, %s, %s, %s, NULL) RETURNING event_id",
-                    (str(ev.get("type_id")), ev.get("t_start"), ev.get("t_end"), ev.get("loc_geohash")),
+                    (str(ev.get("type_id")), t_start, t_end, ev.get("loc_geohash")),
                 ).fetchone()
                 event_id = r[0]
                 conn.execute(
@@ -42,10 +85,10 @@ def ingest(limit: int = 1000) -> int:
                     # accept both legacy string and new dict form
                     if isinstance(part, dict):
                         name = part.get("name")
-                        role = part.get("role")
+                        role = part.get("role") or "participant"
                     else:
                         name = part
-                        role = None
+                        role = "participant"
                     if not name:
                         continue
                     er = conn.execute(
@@ -61,7 +104,7 @@ def ingest(limit: int = 1000) -> int:
                         ).fetchone()
                         ent_id = er[0]
                     conn.execute(
-                        "INSERT INTO event_participant (event_id, role, ent_id) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+                        "INSERT INTO event_participant (event_id, role, ent_id) VALUES (%s, COALESCE(%s,'participant'), %s) ON CONFLICT DO NOTHING",
                         (event_id, role, ent_id),
                     )
                     has_participant = True
