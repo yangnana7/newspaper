@@ -28,6 +28,21 @@ def ensure_table(conn) -> None:
 
 
 def run(limit: int = 2000, threshold: int | None = None) -> int:
+    # Log thresholds before attempting DB connection so logs are visible even if DB is absent
+    sim_max_pre, jac_min_pre = load_thresholds_from_yaml()
+    try:
+        logging.basicConfig(level=logging.INFO)
+    except Exception:
+        pass
+    try:
+        logging.getLogger(__name__).info(
+            "cluster_duplicates thresholds (pre-connect): simhash_hamming_max=%s jaccard_min=%s",
+            sim_max_pre,
+            jac_min_pre,
+        )
+    except Exception:
+        pass
+
     with _connect() as conn:
         ensure_table(conn)
         rows: List[Tuple[int, str]] = conn.execute(
@@ -39,8 +54,9 @@ def run(limit: int = 2000, threshold: int | None = None) -> int:
         th = threshold if isinstance(threshold, int) else sim_max
         try:
             logging.getLogger(__name__).info(
-                "cluster_duplicates thresholds",
-                extra={"simhash_hamming_max": th, "jaccard_min": jac_min},
+                "cluster_duplicates thresholds: simhash_hamming_max=%s jaccard_min=%s",
+                th,
+                jac_min,
             )
         except Exception:
             pass
