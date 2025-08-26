@@ -128,12 +128,10 @@ def load_thresholds_from_yaml(path: Optional[str] = None) -> Tuple[int, float]:
         jaccard_min = float(data.get("jaccard_min", default_jaccard))
         try:
             _LOG.info(
-                "near_duplicate.yaml loaded",
-                extra={
-                    "simhash_hamming_max": simhash_hamming_max,
-                    "jaccard_min": jaccard_min,
-                    "path": cfg_path,
-                },
+                "near_duplicate.yaml loaded: simhash_hamming_max=%s jaccard_min=%s path=%s",
+                simhash_hamming_max,
+                jaccard_min,
+                cfg_path,
             )
         except Exception:
             pass
