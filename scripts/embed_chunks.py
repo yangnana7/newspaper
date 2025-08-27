@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import time
 from typing import List, Tuple
 
 import psycopg
@@ -38,6 +39,10 @@ def main():
     ap.add_argument("--space", required=True, help="embedding_space label (e.g., bge-m3/e5-multilingual)")
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--normalize", action="store_true", default=True, help="normalize embeddings (cosine) [required]")
+    # Robustness options (T4 checklist compatibility)
+    ap.add_argument("--skip-existing", action="store_true", help="skip chunks that already have vectors (default behavior)")
+    ap.add_argument("--sleep-ms", type=int, default=0, help="sleep between batches in milliseconds")
+    ap.add_argument("--max-retries", type=int, default=3, help="max retries per batch on transient failures")
     args = ap.parse_args()
 
     dsn = os.environ.get("DATABASE_URL", "postgresql://localhost/newshub")
@@ -53,19 +58,38 @@ def main():
                 break
             ids = [r[0] for r in rows]
             texts = [r[1] for r in rows]
-            embs = model.encode(texts, normalize_embeddings=bool(args.normalize))
-            dim = len(embs[0]) if len(embs) else 0
-            with conn.transaction():
-                for cid, vec in zip(ids, embs):
-                    conn.execute(
-                        """
-                        INSERT INTO chunk_vec (chunk_id, embedding_space, dim, emb)
-                        VALUES (%s, %s, %s, %s)
-                        ON CONFLICT (chunk_id, embedding_space) DO NOTHING
-                        """,
-                        (cid, args.space, dim, list(map(float, vec))),
-                    )
-            print(f"[+] inserted: {len(ids)} (space={args.space}, dim={dim})")
+            # Encode + insert with retry for robustness
+            last_err = None
+            for attempt in range(args.max_retries + 1):
+                try:
+                    embs = model.encode(texts, normalize_embeddings=bool(args.normalize))
+                    dim = len(embs[0]) if len(embs) else 0
+                    with conn.transaction():
+                        for cid, vec in zip(ids, embs):
+                            conn.execute(
+                                """
+                                INSERT INTO chunk_vec (chunk_id, embedding_space, dim, emb)
+                                VALUES (%s, %s, %s, %s)
+                                ON CONFLICT (chunk_id, embedding_space) DO NOTHING
+                                """,
+                                (cid, args.space, dim, list(map(float, vec))),
+                            )
+                    print(f"[+] inserted: {len(ids)} (space={args.space}, dim={dim})")
+                    last_err = None
+                    break
+                except Exception as e:  # transient failure handling
+                    last_err = e
+                    if attempt >= args.max_retries:
+                        raise
+                    # simple backoff
+                    time.sleep(1.5 * (attempt + 1))
+            if last_err is not None:
+                # If we exit loop with error (should have been raised), be explicit
+                raise last_err
+
+            # Throttle if requested
+            if args.sleep_ms:
+                time.sleep(args.sleep_ms / 1000.0)
 
 
 if __name__ == "__main__":
