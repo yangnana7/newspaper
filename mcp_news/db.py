@@ -1,4 +1,4 @@
-import os
+from .settings import Settings
 try:
     import psycopg  # type: ignore
     from pgvector.psycopg import register_vector  # type: ignore
@@ -11,7 +11,7 @@ except Exception:  # pragma: no cover
 def connect():
     if psycopg is None:
         raise RuntimeError("psycopg is required for DB connections")
-    dsn = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
+    dsn = Settings().database_url
     conn = psycopg.connect(dsn)
     register_vector(conn)
     conn.execute("SET TIME ZONE 'UTC'")

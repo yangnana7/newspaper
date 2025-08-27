@@ -52,6 +52,7 @@ except Exception:  # pragma: no cover
         return None
 
 from search.ranker import rerank_candidates
+from mcp_news.repo_read import get_recent_docs
 
 # Import common metrics module
 from mcp_news.metrics import (
@@ -60,9 +61,10 @@ from mcp_news.metrics import (
     time_ingest_operation_async, time_embed_operation_async,
     CONTENT_TYPE_LATEST
 )
+from mcp_news.settings import Settings
 
 JST = zoneinfo.ZoneInfo("Asia/Tokyo")
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://127.0.0.1/newshub")
+DATABASE_URL = Settings().database_url
 
 app = FastAPI(title="MCP News – Minimal UI")  # type: ignore
 # Avoid startup failure when static dir is absent during tests/CI
@@ -80,20 +82,24 @@ def row_to_dict(r):
 
 @app.get("/api/latest")
 def api_latest(limit: int = Query(50, ge=1, le=200)):
-    sql = """
-      SELECT d.doc_id, d.title_raw, d.published_at,
-             (SELECT val FROM hint WHERE doc_id=d.doc_id AND key='genre_hint') AS genre_hint,
-             d.url_canon, d.source
-      FROM doc d
-      ORDER BY d.published_at DESC
-      LIMIT %s
-    """
     try:
-        if psycopg is None:
-            return []
-        with psycopg.connect(DATABASE_URL) as conn:
-            rows = conn.execute(sql, (limit,)).fetchall()
-        return [row_to_dict(r) for r in rows]
+        docs = get_recent_docs(limit=limit)
+        # Adapt repo_read output to API dict (JST conversion)
+        out = []
+        for d in docs:
+            try:
+                ts = d["published_at"].astimezone(JST).isoformat(timespec="seconds")
+            except Exception:
+                ts = None
+            out.append({
+                "doc_id": d["doc_id"],
+                "title": d["title"],
+                "published_at": ts,
+                "genre_hint": d.get("genre_hint"),
+                "url": d["url"],
+                "source": d["source"],
+            })
+        return out
     except Exception:
         return []
 

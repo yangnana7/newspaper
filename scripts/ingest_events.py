@@ -15,6 +15,7 @@ import psycopg
 
 from .event_extract import extract_events
 from .entity_link import extract_entities
+from mcp_news.logutil import log_kv
 
 
 def _parse_ts(value: Any) -> Optional[datetime]:
@@ -122,9 +123,18 @@ def ingest(limit: int = 1000) -> int:
     return count
 
 
-if __name__ == "__main__":
+def main() -> int:
     ap = argparse.ArgumentParser(description="Ingest events into DB from chunks")
     ap.add_argument("--limit", type=int, default=1000, help="max chunks to scan")
     args = ap.parse_args()
     n = ingest(limit=args.limit)
     print(f"ingested_events={n}")
+    try:
+        log_kv("ingest_events_done", count=n)
+    except Exception:
+        pass
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

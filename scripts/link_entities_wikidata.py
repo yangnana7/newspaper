@@ -4,6 +4,7 @@ Link entities to Wikidata QIDs by name.
 This script is network-dependent; in CI or offline environments, mock fetch_qid.
 """
 import os
+import argparse
 import time
 from typing import Optional, Tuple, Dict, Any, Set
 
@@ -190,6 +191,22 @@ def link_missing(limit: int = 100, sleep_sec: float = 0.3) -> int:
     return cnt
 
 
-if __name__ == "__main__":
-    n = link_missing()
+from mcp_news.logutil import log_kv
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="Link entities to Wikidata QIDs")
+    ap.add_argument("--limit", type=int, default=100, help="max entities to process")
+    ap.add_argument("--sleep-sec", type=float, default=0.3, help="min sleep between requests")
+    args = ap.parse_args()
+    n = link_missing(limit=args.limit, sleep_sec=args.sleep_sec)
     print(f"linked_entities={n}")
+    try:
+        log_kv("link_entities_done", count=n)
+    except Exception:
+        pass
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
