@@ -2,8 +2,12 @@
 """
 Ingest events extracted from chunk text using scripts/event_extract.py.
 DB access occurs only when this script is executed.
+
+CLI:
+  python -m scripts.ingest_events --limit 1000
 """
 import os
+import argparse
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 
@@ -119,5 +123,8 @@ def ingest(limit: int = 1000) -> int:
 
 
 if __name__ == "__main__":
-    n = ingest()
+    ap = argparse.ArgumentParser(description="Ingest events into DB from chunks")
+    ap.add_argument("--limit", type=int, default=1000, help="max chunks to scan")
+    args = ap.parse_args()
+    n = ingest(limit=args.limit)
     print(f"ingested_events={n}")
