@@ -1,0 +1,11 @@
+ [Unit]
+ Description=Newshub logical backup (daily)
+
+ [Service]
+ Type=oneshot
+ User=postgres
+ Group=postgres
+ ExecStart=/usr/local/bin/newshub-backup.sh
+ Nice=19
+ IOSchedulingClass=idle
+

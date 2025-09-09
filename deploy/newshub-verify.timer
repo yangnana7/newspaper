@@ -1,0 +1,11 @@
+ [Unit]
+ Description=Weekly restore verification for newshub
+
+ [Timer]
+ OnCalendar=Sun *-*-* 04:10:00
+ Persistent=true
+ Unit=newshub-verify.service
+
+ [Install]
+ WantedBy=timers.target
+

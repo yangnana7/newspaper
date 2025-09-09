@@ -1,0 +1,11 @@
+ [Unit]
+ Description=Newshub restore verification (weekly)
+
+ [Service]
+ Type=oneshot
+ User=postgres
+ Group=postgres
+ ExecStart=/usr/local/bin/newshub-verify.sh
+ Nice=19
+ IOSchedulingClass=idle
+

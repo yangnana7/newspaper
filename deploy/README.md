@@ -11,6 +11,8 @@
 - Optional: `hn-top.service|timer`, `newsapi-tech-jp.service|timer`
 - `linking.service|timer`: Wikidata 連携（ext_id の付与、進捗ファイルは `/etc/default/mcp-news` の `LINK_PROGRESS_FILE` を参照）
 - `events_ingest.service|timer`: chunk からイベント抽出・格納（参加者・根拠も登録）
+- `newshub-backup.service|timer`: DB 論理バックアップ（日次 03:30）
+- `newshub-verify.service|timer`: 週次リストア検証（毎週日曜 04:10）
 
 ## Install
 ```bash
@@ -30,6 +32,7 @@ sudo cp deploy/*.service deploy/*.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now ingest.timer embed.timer linking.timer events_ingest.timer
 sudo systemctl enable --now mcp-news.service
+sudo systemctl enable --now newshub-backup.timer newshub-verify.timer
 
 # Verify
 systemctl list-timers | grep -E 'ingest|embed'
@@ -37,6 +40,7 @@ journalctl -u ingest.service -n 50 --no-pager
 systemctl list-timers | grep -E 'linking|events_ingest'
 journalctl -u linking.service -n 50 --no-pager
 journalctl -u events_ingest.service -n 50 --no-pager
+systemctl list-timers | grep -E 'newshub-(backup|verify)'
 ```
 
 Adjust environment via `/etc/default/mcp-news` or service `Environment=` lines as needed.
